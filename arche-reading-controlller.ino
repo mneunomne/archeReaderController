@@ -6,6 +6,9 @@
 // 88 -> 1mm
 #define ENA_PIN 8
 
+int c;
+int v=0;
+
 void setup() {
   Serial.begin(9600);
   
@@ -19,7 +22,18 @@ void setup() {
   
 }
 void loop() {
-  Serial.println("Hello, world!");
+  while (Serial.available()) {
+    c = Serial.read();
+    // handle digits
+    if ((c >= '0') && (c <= '9')) {
+      v = 10 * v + c - '0';
+    }
+    // handle delimiter
+    else if (c == 'e') {
+      Serial.println(v);
+      v = 0;
+    }
+  }
   
   // put your main code here, to run repeatedly:
   /*
@@ -33,7 +47,6 @@ void loop() {
 void init () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  Serial.println("start");
 }
 
 void moveX (int steps, int dir) {
