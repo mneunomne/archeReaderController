@@ -10,6 +10,7 @@ import processing.serial.*;
 Gui gui;
 Camera cam;
 SerialPort mySerialPort;
+Decoder decoder; 
 
 int [] last_values = new int [100];
 
@@ -25,6 +26,8 @@ void setup() {
   ControlP5 cp5 = new ControlP5(this);
   gui = new Gui(cp5);
   gui.init();
+
+  decoder = new Decoder();
 }
 
 void captureEvent(Capture c) {
@@ -43,6 +46,9 @@ void draw() {
 
   // display camera in interface
   cam.display();
+
+  // display decoding interface
+  decoder.display();
 }
 
 // wasd movement keys
