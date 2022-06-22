@@ -1,9 +1,11 @@
 public class Gui {
-  
+
+  Chart myChart;
+
   ControlP5 cp5;
   int [] last_values = new int [100];
 
-  Gui (Controlp5 _cp5) {
+  Gui (ControlP5 _cp5) {
     cp5 = _cp5;
   }
 
@@ -15,6 +17,8 @@ public class Gui {
     for (int i = 0; i < last_values.length; i++) {
       last_values[i] = 0;
     }
+
+    chart();
   }
 
   void chart () {

@@ -1,8 +1,14 @@
 public class Camera {
   Capture video;
+  PApplet parent;
+  
+  int captureSize = 2;
+  int capturePosX, capturePosY;
+  int w,h;
 
-  Camera() {
+  Camera(PApplet _parent) {
     // null
+    parent = _parent;
   }
   
   void init() {
@@ -17,13 +23,15 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(this, cameras[0]);
-      video.start();     
+      video = new Capture(parent, cameras[2]);
+      video.start();
     }
-  }
 
-  void captureEvent(Capture c) {
-    c.read();
+    w = video.width;
+    h = video.height;
+    
+    capturePosX = w/2-captureSize/2;
+    capturePosY = h/2-captureSize/2;
   }
 
 

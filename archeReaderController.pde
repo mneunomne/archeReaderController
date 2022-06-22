@@ -16,14 +16,19 @@ int [] last_values = new int [100];
 void setup() {
   size(640, 480);
 
-  cam = new Camera();
+  cam = new Camera(this);
   cam.init();
 
-  mySerialPort = new SerialPort();
+  mySerialPort = new SerialPort(this);
 
   // cp5 Graphic User Interface
   ControlP5 cp5 = new ControlP5(this);
   gui = new Gui(cp5);
+  gui.init();
+}
+
+void captureEvent(Capture c) {
+  c.read();
 }
 
 void draw() {
@@ -40,18 +45,12 @@ void draw() {
   cam.display();
 }
 
-
-/**
- * Handle key presses:
- * 'c' toggles the cheat screen that shows the original image in the corner
- * 'g' grabs an image and saves the frame to a tiff image
- * 'f' and 'F' increase and decrease the font size
- */
+// wasd movement keys
 void keyPressed() {
   switch (key) {
-    case 'w': sendMovementArduino("+500y"); break;
-    case 'a': sendMovementArduino("-500x"); break;
-    case 's': sendMovementArduino("-500y"); break;
-    case 'd': sendMovementArduino("+500x"); break;
+    case 'w': mySerialPort.sendMovementCommand('+', 500, 'y'); break;
+    case 'a': mySerialPort.sendMovementCommand('-', 500, 'x'); break;
+    case 's': mySerialPort.sendMovementCommand('-', 500, 'y'); break;
+    case 'd': mySerialPort.sendMovementCommand('+', 500, 'x'); break;
   }
 }
