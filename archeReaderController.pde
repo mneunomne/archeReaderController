@@ -9,10 +9,15 @@ import processing.serial.*;
 
 Gui gui;
 Camera cam;
-SerialPort mySerialPort;
+MachineController machineController;
 Decoder decoder; 
+OscController oscController;
 
 int [] last_values = new int [100];
+
+/* GLOBALS */
+String MAX_ADDRESS = "10.10.48.164";
+int MAX_PORT = 12000;
 
 void setup() {
   size(640, 480);
@@ -20,14 +25,15 @@ void setup() {
   cam = new Camera(this);
   cam.init();
 
-  mySerialPort = new SerialPort(this);
+  machineController = new MachineController(this);
 
-  // cp5 Graphic User Interface
   ControlP5 cp5 = new ControlP5(this);
   gui = new Gui(cp5);
   gui.init();
 
   decoder = new Decoder();
+
+  oscController = new OscController();
 }
 
 void captureEvent(Capture c) {
@@ -54,9 +60,9 @@ void draw() {
 // wasd movement keys
 void keyPressed() {
   switch (key) {
-    case 'w': mySerialPort.sendMovementCommand('+', 500, 'y'); break;
-    case 'a': mySerialPort.sendMovementCommand('-', 500, 'x'); break;
-    case 's': mySerialPort.sendMovementCommand('-', 500, 'y'); break;
-    case 'd': mySerialPort.sendMovementCommand('+', 500, 'x'); break;
+    case 'w': machineController.moveY(500); break;
+    case 'a': machineController.moveX(-500); break;
+    case 's': machineController.moveY(-500); break;
+    case 'd': machineController.moveX(500); break;
   }
 }

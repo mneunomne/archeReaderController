@@ -55,7 +55,11 @@ void loop() {
       moveX(steps, dir);
     } else if (axis == 'y') {
       moveY(steps, dir);
+    } else {
+      return;
     }
+
+    Serial.println("e");
   }
 }
 
