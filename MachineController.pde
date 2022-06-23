@@ -5,11 +5,23 @@ class MachineController {
   int accumulated_x = 0;
   int accumulated_y = 0;
 
+  boolean isRunning;
+
+  int current_row_index = 0;
+
   MachineController(PApplet parent) {
     // null
     String portName = Serial.list()[2]; //change the 0 to a 1 or 2 etc. to match your port
     println("[SerialPort] SerialList: ", Serial.list());
     port = new Serial(parent, portName, 9600);    
+  }
+
+  void startReading () {
+    isRunning = true;
+  }
+
+  void readRow () {
+    moveX()
   }
 
   void setInitialPosition () {
