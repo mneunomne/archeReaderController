@@ -42,6 +42,7 @@ void setup() {
   decoder = new Decoder();
 
   oscController = new OscController();
+  oscController.connect();
 }
 
 void captureEvent(Capture c) {
@@ -81,5 +82,6 @@ void keyPressed() {
     case 's': machineController.moveY(-500); break;
     case 'd': machineController.moveX(500); break;
     case 'r': decoder.storeDataPoint(); break;
+    case 'f': oscController.sendFinalAudio(); break;
   }
 }

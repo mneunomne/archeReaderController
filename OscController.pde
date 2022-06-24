@@ -18,9 +18,10 @@ class OscController {
   /* LIVE Data */
   void sendOscLiveData () {
     OscMessage message = new OscMessage("/live_data");
-    message.add(decoder.getLiveValue());
+    int liveData = decoder.getLiveValue();
+    message.add(liveData);
     oscP5.send(message, remoteBroadcast);
-    println("[OscController] send live_data", message);
+    // println("[OscController] send live_data", message);
   }
 
   /* Accumulated Data */

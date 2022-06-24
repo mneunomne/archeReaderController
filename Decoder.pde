@@ -4,9 +4,12 @@ public class Decoder {
   int length = 51040;
   
   int [] bits = new int[length];
+  String bString = "";
 
   int grid_width=cols;
   int grid_height=rows;
+
+  int currentIndex = 0; 
 
   PGraphics pg;
 
@@ -32,11 +35,30 @@ public class Decoder {
   }
 
   void storeDataPoint () {
-    oscController.sendOscAccumulatedData()
+    char bit = currentLiveValue > threshold ? '0' : '1';
+    bString = bString + bit;
+    currentIndex++;
+    // every 8 read signals, send to max
+    if (bString.length() >= 8) {
+      oscController.sendOscAccumulatedData(getSignalArray(), currentIndex);
+    } else {
+      // bit string not long enough yet.
+      return; 
+    }
   }
 
-  void interpretSignalArray () {
-
+  int [] getSignalArray () {
+    // split into 8 chars
+    String[] binaryStrings = bString.split("(?<=\\G........)", -1);
+    print("[Decoder] array ");
+    printArray(binaryStrings);
+    int [] values = new int[binaryStrings.length];
+    for (int i = 0; i < binaryStrings.length; i++) {
+      if (binaryStrings[i].length() == 8) {
+        values[i] = Integer.parseInt(binaryStrings[i], 2);
+      }
+    }
+    return values;
   }
 
   void update () {
