@@ -18,7 +18,7 @@ OscController oscController;
 int [] last_values = new int [100];
 
 /* GLOBALS */
-String MAX_ADDRESS = "10.10.48.164";
+String MAX_ADDRESS = "10.10.48.121";
 int MAX_PORT = 12000;
 
 int STEPS_FOR_EACH_POINT = 88;

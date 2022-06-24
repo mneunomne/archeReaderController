@@ -28,17 +28,19 @@ class OscController {
   void sendOscAccumulatedData (int [] data, int index) {
     OscMessage message = new OscMessage("/accumulated_data");
     message.add(data);
-    message.add(index);
+    OscMessage messageIndex = new OscMessage("/index");
+    messageIndex.add(index);
     oscP5.send(message, remoteBroadcast);
-    println("[OscController] send accumulated_data", Arrays.toString(data);
+    oscP5.send(messageIndex, remoteBroadcast);
+    // println("[OscController] send accumulated_data", Arrays.toString(data));
   }
   
   /* Final Audio */
-  void sendFinalAudio (int [] data, int sample_rate) {
+  void sendFinalAudio () {
     OscMessage message = new OscMessage("/final_audio");
     message.add(decoder.getFinalAudio());
     //message.add(sample_rate);
     oscP5.send(message, remoteBroadcast);
-    println("[OscController] send final_audio", Arrays.toString(decoder.getFinalAudio()));
+    // println("[OscController] send final_audio", Arrays.toString(decoder.getFinalAudio()));
   }
 }

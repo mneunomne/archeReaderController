@@ -63,6 +63,17 @@ public class Decoder {
 
   void update () {
     currentLiveValue = cam.getCenterValue();
+    if (frameCount % 5 == 0) {
+      if (currentIndex >= originalNumbers.length) {
+        currentIndex = 0;
+      }
+      currentIndex++;
+      int [] numbers = new int [currentIndex];
+      for (int i = 0; i < currentIndex; i++) {
+        numbers[i] = originalNumbers[i];
+      }
+      oscController.sendOscAccumulatedData(numbers, currentIndex);
+    }
   }
 
   void display () {
