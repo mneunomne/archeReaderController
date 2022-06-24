@@ -23,7 +23,7 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[2]);
+      video = new Capture(parent, cameras[0]);
       video.start();
     }
 
@@ -42,7 +42,7 @@ public class Camera {
     rect(capturePosX, capturePosY, captureSize, captureSize); 
   }
 
-  float getCenterValue () {
+  int getCenterValue () {
     float sum = 0;
     video.loadPixels();
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
@@ -52,7 +52,7 @@ public class Camera {
         sum+=b;
       }  
     }
-    float average = sum/(captureSize*captureSize);
+    int average = floor(sum/(captureSize*captureSize));
     return average;
   }
 }

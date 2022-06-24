@@ -11,8 +11,9 @@ class MachineController {
 
   MachineController(PApplet parent) {
     // null
-    String portName = Serial.list()[2]; //change the 0 to a 1 or 2 etc. to match your port
-    println("[SerialPort] SerialList: ", Serial.list());
+    print("[SerialPort] SerialList: ");
+    printArray(Serial.list());
+    String portName = Serial.list()[6]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
   }
 
@@ -21,7 +22,7 @@ class MachineController {
   }
 
   void readRow () {
-    moveX()
+    // moveX()
   }
 
   void setInitialPosition () {
@@ -36,18 +37,16 @@ class MachineController {
   void moveX (int steps) {
     accumulated_x=+steps;
     char dir = steps > 0 ? '+' : '-';
-    sendMovementCommand(dir, 500, 'x')
+    sendMovementCommand(dir, 500, 'x');
   }
 
   void moveY (int steps) {
     accumulated_y=+steps;
     char dir = steps > 0 ? '+' : '-';
-    sendMovementCommand(dir, 500, 'y')
+    sendMovementCommand(dir, 500, 'y');
   }
 
-  void moveDiagonally (int stepsX, int stepsY) {
-
-  }
+  void moveDiagonally (int stepsX, int stepsY) {}
 
   void sendMovementCommand (char dir, int value, char axis) {
     // e.g.: +100x
@@ -66,7 +65,7 @@ class MachineController {
       val = port.readStringUntil('\n');         // read it and store it in val
       if (val.length() > 0) {
         println(val); //print it out in the console
-        if (val.charAt(0) == "e") {
+        if (val.charAt(0) == 'e') {
           // end
           println("movement over!");
           // sendMovementCommand('+', 500, 'y');

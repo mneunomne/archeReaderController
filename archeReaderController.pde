@@ -6,6 +6,8 @@
 import controlP5.*;
 import processing.video.*;
 import processing.serial.*;
+import netP5.*;
+import oscP5.*;
 
 Gui gui;
 Camera cam;
@@ -22,6 +24,8 @@ int MAX_PORT = 12000;
 int STEPS_FOR_EACH_POINT = 88;
 int ROWS;
 int COLS; 
+
+int threshold = 150;
 
 void setup() {
   size(640, 480);
@@ -52,13 +56,21 @@ void draw() {
   gui.updateChart(currentCameraValue);
 
   // constantly listening to events from arduino
-  mySerialPort.listenToSerialEvents();
+  machineController.listenToSerialEvents();
 
   // display camera in interface
   cam.display();
 
   // display decoding interface
+  decoder.update();
   decoder.display();
+
+  oscController.update();
+}
+
+void threshold_slider (float value) {
+  // on slider change
+  threshold = floor(value);
 }
 
 // wasd movement keys
@@ -68,5 +80,6 @@ void keyPressed() {
     case 'a': machineController.moveX(-500); break;
     case 's': machineController.moveY(-500); break;
     case 'd': machineController.moveX(500); break;
+    case 'r': decoder.storeDataPoint(); break;
   }
 }

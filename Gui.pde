@@ -5,6 +5,9 @@ public class Gui {
   ControlP5 cp5;
   int [] last_values = new int [100];
 
+  int cp_width = 150;
+  int cp_height = 20;
+
   Gui (ControlP5 _cp5) {
     cp5 = _cp5;
   }
@@ -19,6 +22,14 @@ public class Gui {
     }
 
     chart();
+
+    // threshold slider
+    cp5.addSlider("threshold_slider")
+      .setPosition(width-cp_width,0)
+      .setSize(cp_width, cp_height)
+      .setValue(threshold)
+      .setRange(0, 255)
+      ;
   }
 
   void chart () {
@@ -34,10 +45,13 @@ public class Gui {
       ;
     myChart.addDataSet("incoming");
     myChart.setData("incoming", new float[100]);
+
   }
 
   void updateChart (float value) {
     myChart.push("incoming", value);
+    stroke(255, 0, 0);
+    line(0, (threshold/255)*100, 200, (threshold/255)*100);
   }
 
 
