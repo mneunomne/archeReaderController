@@ -17,7 +17,7 @@ class OscController {
 
   /* LIVE Data */
   void sendOscLiveData () {
-    OscMessage message = new OscMessage("/live_data");
+    OscMessage message = new OscMessage("/camera_data");
     int liveData = decoder.getLiveValue();
     message.add(liveData);
     oscP5.send(message, remoteBroadcast);
@@ -30,7 +30,7 @@ class OscController {
     message.add(data);
     message.add(index);
     oscP5.send(message, remoteBroadcast);
-    println("[OscController] send accumulated_data", message);
+    println("[OscController] send accumulated_data", Arrays.toString(data);
   }
   
   /* Final Audio */
@@ -39,6 +39,6 @@ class OscController {
     message.add(decoder.getFinalAudio());
     //message.add(sample_rate);
     oscP5.send(message, remoteBroadcast);
-    println("[OscController] send final_audio", message);
+    println("[OscController] send final_audio", Arrays.toString(decoder.getFinalAudio()));
   }
 }
