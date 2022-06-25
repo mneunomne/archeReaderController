@@ -6,10 +6,12 @@ public class Decoder {
   int [] bits = new int[length];
   String bString = "";
 
+  ArrayList<byte> rowBytes = new ArrayList<byte>();
+
   int grid_width=cols;
   int grid_height=rows;
 
-  int currentIndex = 0; 
+  int currentIndex = 0;
 
   PGraphics pg;
 
@@ -63,8 +65,15 @@ public class Decoder {
 
   void update () {
     currentLiveValue = cam.getCenterValue();
-    if (sendFakeData) {
-      sendTestData();
+    switch (decoderState) {
+      case READING_ROW_DATA:
+      case READING_ROW_DATA_INVERTED:
+        byte b = (byte) currentLiveValue;
+        rowBytes.add(currentLiveValue);
+        break;
+      case SENDING_FAKE_DATA:
+        sendTestData();
+        break;
     }
   }
 
@@ -103,6 +112,22 @@ public class Decoder {
     }
     pg.endDraw();
   }
+
+  void startReadingRow (int current_row_index) {
+    rowBytes.clear()
+    decoderState = READING_ROW_DATA;
+    currentIndex = current_row_index;
+  }
+
+  void startReadingRowInverted (int current_row_index) {
+    rowBytes.clear()
+    decoderState = READING_ROW_DATA_INVERTED;
+    currentIndex = current_row_index;
+  }
+
+  void endReading (boolean isInverted) {
+    if (isInverted) Collections.reverse(rowBytes);
+  } 
 
   int [] getFinalAudio () {
     return originalNumbers;

@@ -115,6 +115,17 @@ class MachineController {
     }
   }
 
+  void onMovementStart () {
+    switch (macroState) {
+      case READING_ROW:
+        decoder.startReadingRow();
+        break;
+      case READING_ROW_INVERSE:
+        decoder.startReadingRowInverted();
+        break;
+    }
+  }
+
   void onMovementEnd () {
     switch (macroState) {
       case STOP_MACHINE:
@@ -142,11 +153,13 @@ class MachineController {
   void whileReadingPlate () {
     switch (machineState) {
       case RUNNING_ROW_INVERSE:
+        decoder.endReading(true); // is inverted
         // interpret signal
         if (current_row_index < PLATE_ROWS) jumpRow();
         break;
       case RUNNING_ROW:
         // interpret signal
+        decoder.endReading(false); // is inverted
         if (current_row_index < PLATE_ROWS) jumpRow();
         break;
       case JUMPING_ROW:

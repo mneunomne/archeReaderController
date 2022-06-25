@@ -37,9 +37,8 @@ static final int READING_UNIT             = 2;
 static final int READING_ROW              = 3;
 static final int READING_ROW_INVERSE      = 4;
 static final int READING_PLATE            = 5;
-static final int SENDING_FAKE_DATA        = 6;
 int macroState = 0;
-String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE","SENDING_FAKE_DATA"};
+String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE"};
 
 // Machine States
 static final int MACHINE_IDLE         = 0;
@@ -51,6 +50,14 @@ static final int RETURNING_TOP        = 5;
 static final int RUNNING_WASD         = 6;
 int machineState = 0;
 String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD"};
+
+// Decoder States
+static final int DECODER_IDLE               = 0;
+static final int READING_ROW_DATA           = 1;
+static final int READING_ROW_DATA_INVERTED  = 2;
+static final int SENDING_FAKE_DATA          = 3;
+int decoderState = 0;
+String [] machineStates = {"DECODER_IDLE","READING_ROW_DATA","SENDING_FAKE_DATA"};
 
 int threshold   = 150;
 int small_steps = 250;
