@@ -11,10 +11,7 @@ class MachineController {
 
   String lastMovement;
 
-
-  int UNIT_STEPS = 88;
-  int ROW_STEPS = 16725;
-  int COLS_STEPS = 23083;
+  int lastDir = 0; 
 
   MachineController(PApplet parent) {
     // null
@@ -68,23 +65,32 @@ class MachineController {
     // how much delay?
   }
 
+  void returnToTop () {
+    machineState = RETURNING_TOP;
+    moveY(UNIT_STEPS*current_row_index);
+    current_row_index=0;
+  }
+
   void runRow () {
+    lastDir = 1;
     machineState = RUNNING_ROW;
     moveX(ROW_STEPS);
   }
   
   void runRowInverse () {
+    lastDir = -1;
     machineState = RUNNING_ROW_INVERSE;
     moveX(-ROW_STEPS);
   }
 
   void jumpRow () {
-    machineState = RUNNING_ROW;
+    current_row_index++;
+    machineState = JUMPING_ROW;
     moveY(UNIT_STEPS);
   }
 
   void runPlate () {
-    machineState = RUNNING_ROW;
+    machineState = READING_PLATE;
     moveX(ROW_STEPS);
   }
 
@@ -92,12 +98,18 @@ class MachineController {
     if ( port.available() > 0)  {  // If data is available,
       val = port.readStringUntil('\n');         // read it and store it in val
       if (val.length() > 0) {
-        println(val); //print it out in the console
-        if (val.charAt(0) == 'e') {
-          // end
-          println("movement over: ", lastMovement);
-          // sendMovementCommand('+', 500, 'y');
-          onMovementEnd();
+        char c = val.charAt(0);
+        //println(val); //print it out in the console
+        // start
+        switch (c) {
+          case 's': // start
+            onMovementStart();
+            break;
+          case 'e': // end
+            println("movement over: ", lastMovement);
+            if (lastMovement == null) return; // sometimes there is leftover event coming from arduino
+            onMovementEnd();
+            break;
         }
       }
     }
@@ -105,8 +117,45 @@ class MachineController {
 
   void onMovementEnd () {
     switch (macroState) {
+      case STOP_MACHINE:
       case RUNNING_WASD_COMMAND:
-        macroState = MACRO_IDLE; break;
+      case RETURNING_TOP:
+        // after these events, no reading is involved
+        macroState = MACRO_IDLE;
+        machineState = MACHINE_IDLE;
+        break;
+      case READING_ROW:
+        // interpret signal and push to database? (or does this happen live)
+        macroState = MACRO_IDLE;
+        machineState = MACHINE_IDLE;
+      case READING_ROW_INVERSE:
+        // interpret signal inverted
+        macroState = MACRO_IDLE;
+        machineState = MACHINE_IDLE;
+        break;
+      case READING_PLATE:
+        whileReadingPlate();
+        break;
+    }
+  }
+
+  void whileReadingPlate () {
+    switch (machineState) {
+      case RUNNING_ROW_INVERSE:
+        // interpret signal
+        if (current_row_index < PLATE_ROWS) jumpRow();
+        break;
+      case RUNNING_ROW:
+        // interpret signal
+        if (current_row_index < PLATE_ROWS) jumpRow();
+        break;
+      case JUMPING_ROW:
+        if (lastDir < 0) {
+          runRow();
+        } else {
+          runRowInverse();
+        }
+        break;
     }
   }
 }

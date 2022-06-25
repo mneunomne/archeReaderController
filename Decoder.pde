@@ -84,7 +84,7 @@ public class Decoder {
 
   void display () {
     render_grid();
-    image(pg, width-grid_width, height-grid_height);
+    image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
   }
 
   void render_grid () {

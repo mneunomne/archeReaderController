@@ -8,11 +8,10 @@ public class Gui {
   int cp_width = 200;
   int cp_height = 10;
 
-  int margin = 10;
-
   int chart_h = 100;
   int chart_w = 200;
   
+  int margin = MARGIN;
   int y = margin; 
 
   Gui (ControlP5 _cp5) {
@@ -26,6 +25,7 @@ public class Gui {
     chart();
     sliders();
     buttons();
+    // texts();
   }
 
   void sliders () {
@@ -50,10 +50,16 @@ public class Gui {
     int fx = width - 100 - margin;
     int fy = margin; 
 
-    int button_w = 40;
-    int button_h = 20;
+    int button_w = 30;
+    int button_h = 15;
     
     cp5.addBang("read_row")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      ;
+    fy+= button_h+margin+10;
+    
+    cp5.addBang("read_row_inverse")
       .setPosition(fx, fy)
       .setSize(button_w, button_h)
       ;
@@ -72,6 +78,12 @@ public class Gui {
     fy+= button_h+margin+10; 
 
     cp5.addBang("read_plate")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      ;
+    fy+= button_h+margin+10; 
+    
+    cp5.addBang("stop_machine")
       .setPosition(fx, fy)
       .setSize(button_w, button_h)
       ;
@@ -106,24 +118,18 @@ public class Gui {
     y+=chart_h+margin+10;
   }
 
-  void display () {
-    int fy = y;
-    
-    cp5.addTextlabel("macroState")
-        .setText("macroState: " + macroStates[macroState])
-        .setPosition(margin,fy)
-        .setColorValue(0xffffffff)
-        ;
-    fy+=margin+10;
+  Textlabel myTextlabelA;
+  Textlabel myTextlabelB;
 
-    cp5.addTextlabel("machineState")
-        .setText("machineState: " + machineStates[machineState])
-        .setPosition(margin,fy)
-        .setColorValue(0xffffffff)
-        ;
+  void display () {
+    fill(255);
+    int fy = y + margin;
+    text("macroState: " + macroStates[macroState], margin,fy);
     fy+=margin+10;
-    
+    text("machineState: " + machineStates[machineState], margin,fy);
+    fy+=margin+5;
   }
+
 
   /*
   void chartMatrix () {

@@ -29,6 +29,8 @@ public class Camera {
 
     w = video.width;
     h = video.height;
+
+    println("video size", w, h);
     
     capturePosX = w/2-captureSize/2;
     capturePosY = h/2-captureSize/2;
@@ -36,10 +38,10 @@ public class Camera {
 
 
   void display() {
-    image(video, 0, height - video.height);
+    image(video, 0, 0, width, height);
     stroke(255, 0, 0);
     noFill();
-    rect(capturePosX, capturePosY, captureSize, captureSize); 
+    rect((float(capturePosX)/w)*width, (float(capturePosY)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width); 
   }
 
   int getCenterValue () {

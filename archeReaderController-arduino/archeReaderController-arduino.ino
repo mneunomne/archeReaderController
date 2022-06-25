@@ -57,7 +57,8 @@ void loop() {
       }
       steps = v.toInt();
     }
-    
+    // send start message to processing
+    Serial.println("s");
     // move
     if (axis == 'x') {
       moveX(steps, dir);
@@ -66,7 +67,7 @@ void loop() {
     } else {
       return;
     }
-
+    // send end message to processing
     Serial.println("e");
   }
 }
