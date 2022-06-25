@@ -27,6 +27,9 @@ int COLS;
 
 int threshold = 150;
 
+/* Debug variables */
+boolean sendFakeData = false 
+
 void setup() {
   size(640, 480);
 
