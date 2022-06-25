@@ -128,6 +128,8 @@ public class Gui {
     fy+=margin+10;
     text("machineState: " + machineStates[machineState], margin,fy);
     fy+=margin+5;
+    text("decoderState: " + decoderStates[decoderState], margin,fy);
+    fy+=margin+5;
   }
 
 

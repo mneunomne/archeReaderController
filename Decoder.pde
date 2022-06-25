@@ -6,12 +6,12 @@ public class Decoder {
   int [] bits = new int[length];
   String bString = "";
 
-  ArrayList<byte> rowBytes = new ArrayList<byte>();
+  ArrayList<Integer> rowBytes = new ArrayList<Integer>();
 
   int grid_width=cols;
   int grid_height=rows;
 
-  int currentIndex = 0;
+  int currentRowIndex = 0;
 
   PGraphics pg;
 
@@ -23,7 +23,8 @@ public class Decoder {
 
   Decoder () {
     pg = createGraphics(width, height);
-    for (int i = 0; i < length; i++) bits[i] = random(100) > 50 ? 1 : 0;
+    //for (int i = 0; i < length; i++) bits[i] = random(100) > 50 ? 1 : 0;
+    for (int i = 0; i < length; i++) bits[i] = 0;
     pg.beginDraw();
     pg.background(100);
     pg.endDraw();
@@ -39,10 +40,10 @@ public class Decoder {
   void storeDataPoint () {
     char bit = currentLiveValue > threshold ? '0' : '1';
     bString = bString + bit;
-    currentIndex++;
+    currentRowIndex++;
     // every 8 read signals, send to max
     if (bString.length() >= 8) {
-      oscController.sendOscAccumulatedData(getSignalArray(), currentIndex);
+      oscController.sendOscAccumulatedData(getSignalArray(), currentRowIndex);
     } else {
       // bit string not long enough yet.
       return; 
@@ -68,7 +69,7 @@ public class Decoder {
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
-        byte b = (byte) currentLiveValue;
+        // byte b = (byte) currentLiveValue;
         rowBytes.add(currentLiveValue);
         break;
       case SENDING_FAKE_DATA:
@@ -79,15 +80,15 @@ public class Decoder {
 
   void sendTestData () {
     if (frameCount % 5 == 0) {
-      if (currentIndex >= originalNumbers.length) {
-        currentIndex = 0;
+      if (currentRowIndex >= originalNumbers.length) {
+        currentRowIndex = 0;
       }
-      currentIndex++;
-      int [] numbers = new int [currentIndex];
-      for (int i = 0; i < currentIndex; i++) {
+      currentRowIndex++;
+      int [] numbers = new int [currentRowIndex];
+      for (int i = 0; i < currentRowIndex; i++) {
         numbers[i] = originalNumbers[i];
       }
-      oscController.sendOscAccumulatedData(numbers, currentIndex);
+      oscController.sendOscAccumulatedData(numbers, currentRowIndex);
     }
   }
 
@@ -114,19 +115,27 @@ public class Decoder {
   }
 
   void startReadingRow (int current_row_index) {
-    rowBytes.clear()
+    rowBytes.clear();
     decoderState = READING_ROW_DATA;
-    currentIndex = current_row_index;
+    currentRowIndex = current_row_index;
   }
 
   void startReadingRowInverted (int current_row_index) {
-    rowBytes.clear()
+    rowBytes.clear();
     decoderState = READING_ROW_DATA_INVERTED;
-    currentIndex = current_row_index;
+    currentRowIndex = current_row_index;
   }
 
   void endReading (boolean isInverted) {
     if (isInverted) Collections.reverse(rowBytes);
+    int interval = floor(rowBytes.size()/cols);
+    int index=currentRowIndex*cols; 
+    for (int i = 0; i < rowBytes.size(); i+=interval) { 
+      int n = rowBytes.get(i);
+      int bit = n > threshold ? 0 : 1;
+      bits[index] = bit;
+      index++;
+    }
   } 
 
   int [] getFinalAudio () {

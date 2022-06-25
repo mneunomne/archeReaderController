@@ -2,7 +2,8 @@
  * Arche-Scripttures
  * Processing reading controller
  */
- 
+
+import java.util.*;
 import controlP5.*;
 import processing.video.*;
 import processing.serial.*;
@@ -37,8 +38,10 @@ static final int READING_UNIT             = 2;
 static final int READING_ROW              = 3;
 static final int READING_ROW_INVERSE      = 4;
 static final int READING_PLATE            = 5;
+static final int STOP_MACHINE             = 6;
+static final int RETURNING_TOP            = 7;
 int macroState = 0;
-String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE"};
+String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP"};
 
 // Machine States
 static final int MACHINE_IDLE         = 0;
@@ -46,8 +49,7 @@ static final int RUNNING_ROW_INVERSE  = 1;
 static final int RUNNING_ROW          = 2;
 static final int JUMPING_ROW          = 3;
 static final int RUNNING_UNIT         = 4;
-static final int RETURNING_TOP        = 5;
-static final int RUNNING_WASD         = 6;
+static final int RUNNING_WASD         = 5;
 int machineState = 0;
 String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD"};
 
@@ -57,7 +59,7 @@ static final int READING_ROW_DATA           = 1;
 static final int READING_ROW_DATA_INVERTED  = 2;
 static final int SENDING_FAKE_DATA          = 3;
 int decoderState = 0;
-String [] machineStates = {"DECODER_IDLE","READING_ROW_DATA","SENDING_FAKE_DATA"};
+String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","SENDING_FAKE_DATA"};
 
 int threshold   = 150;
 int small_steps = 250;

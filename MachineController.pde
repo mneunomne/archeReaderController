@@ -1,16 +1,11 @@
 class MachineController {
   Serial port;  // Create object from Serial class
   String val;     // Data received from the serial port
-
   int accumulated_x = 0;
   int accumulated_y = 0;
-
   boolean isRunning;
-
   int current_row_index = 0;
-
   String lastMovement;
-
   int lastDir = 0; 
 
   MachineController(PApplet parent) {
@@ -23,10 +18,6 @@ class MachineController {
 
   void startReading () {
     isRunning = true;
-  }
-
-  void readRow () {
-    // moveX()
   }
 
   void setInitialPosition () {
@@ -58,11 +49,6 @@ class MachineController {
     lastMovement = s; 
     println("[SerialPort] sending: " + s);
     port.write(s);
-  }
-
-  void onMovementOver () {
-    // do something
-    // how much delay?
   }
 
   void returnToTop () {
@@ -99,7 +85,7 @@ class MachineController {
       val = port.readStringUntil('\n');         // read it and store it in val
       if (val.length() > 0) {
         char c = val.charAt(0);
-        //println(val); //print it out in the console
+        println("listenToSerialEvents", c); //print it out in the console
         // start
         switch (c) {
           case 's': // start
@@ -118,10 +104,10 @@ class MachineController {
   void onMovementStart () {
     switch (macroState) {
       case READING_ROW:
-        decoder.startReadingRow();
+        decoder.startReadingRow(current_row_index);
         break;
       case READING_ROW_INVERSE:
-        decoder.startReadingRowInverted();
+        decoder.startReadingRowInverted(current_row_index);
         break;
     }
   }
@@ -139,6 +125,7 @@ class MachineController {
         // interpret signal and push to database? (or does this happen live)
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
+        break;
       case READING_ROW_INVERSE:
         // interpret signal inverted
         macroState = MACRO_IDLE;
@@ -153,16 +140,18 @@ class MachineController {
   void whileReadingPlate () {
     switch (machineState) {
       case RUNNING_ROW_INVERSE:
-        decoder.endReading(true); // is inverted
         // interpret signal
+        decoder.endReading(true); // is inverted
+        // jump to next row
         if (current_row_index < PLATE_ROWS) jumpRow();
         break;
       case RUNNING_ROW:
         // interpret signal
         decoder.endReading(false); // is inverted
+        // jump to next row
         if (current_row_index < PLATE_ROWS) jumpRow();
         break;
-      case JUMPING_ROW:
+      case JUMPING_ROW: 
         if (lastDir < 0) {
           runRow();
         } else {

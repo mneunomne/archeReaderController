@@ -2,7 +2,7 @@ public class Camera {
   Capture video;
   PApplet parent;
   
-  int captureSize = 8;
+  int captureSize = 2;
   int capturePosX, capturePosY;
   int w,h;
 
