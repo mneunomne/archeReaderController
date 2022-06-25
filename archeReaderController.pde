@@ -25,10 +25,19 @@ int STEPS_FOR_EACH_POINT = 88;
 int ROWS;
 int COLS; 
 
-int threshold = 150;
+int threshold   = 150;
+int small_steps = 250;
+int big_steps   = 8000;
+
+int threshold_default   = 150;
+int small_steps_default = UNIT_STEPS;
+int big_steps_default   = ROW_STEPS;
+
+// for debuging
+String [] states = {"IDLE","READING_ROW","READING_ROW_INVERSE","CHANGING_ROW","READING_UNIT"};
 
 /* Debug variables */
-boolean sendFakeData = false 
+boolean sendFakeData = false;
 
 void setup() {
   size(640, 480);
@@ -58,7 +67,7 @@ void draw() {
   // update gui chart with the value from the camera 
   float currentCameraValue = cam.getCenterValue();
   gui.updateChart(currentCameraValue);
-
+  gui.display();
   // constantly listening to events from arduino
   machineController.listenToSerialEvents();
 
@@ -69,21 +78,47 @@ void draw() {
   decoder.update();
   decoder.display();
 
-  oscController.update();
+  // oscController.update();
 }
 
+/*
+  ControlP5 listeners
+*/
 void threshold_slider (float value) {
   // on slider change
   threshold = floor(value);
 }
 
+void small_steps_slider (float value) {
+  small_steps = floor(value);
+  println("small_steps_slider", value, small_steps);
+}
+void big_steps_slider (float value) {
+  big_steps = floor(value);
+  println("big_steps_slider", value, big_steps);
+}
+/*
+  ControlP5 Bang Buttons
+*/
+
+void read_row () {
+  machineController.runRow();
+}
+
 // wasd movement keys
 void keyPressed() {
   switch (key) {
-    case 'w': machineController.moveY(500); break;
-    case 'a': machineController.moveX(-500); break;
-    case 's': machineController.moveY(-500); break;
-    case 'd': machineController.moveX(500); break;
+    /* Movements */
+    case 'w': machineController.moveY(small_steps); break;
+    case 'a': machineController.moveX(small_steps); break;
+    case 's': machineController.moveY(-small_steps); break;
+    case 'd': machineController.moveX(-small_steps); break;
+    /* big movements */
+    case 'W': machineController.moveY(big_steps); break;
+    case 'A': machineController.moveX(big_steps); break;
+    case 'S': machineController.moveY(-big_steps); break;
+    case 'D': machineController.moveX(-big_steps); break;
+    /* end movements */
     case 'r': decoder.storeDataPoint(); break;
     case 'f': oscController.sendFinalAudio(); break;
   }

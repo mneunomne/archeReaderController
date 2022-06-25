@@ -9,6 +9,21 @@ class MachineController {
 
   int current_row_index = 0;
 
+  String lastMovement;
+
+  static final int IDLE                 = 0;
+  static final int MOVING               = 1;
+  static final int READING_ROW_INVERSE  = 2;
+  static final int READING_ROW          = 3;
+  static final int CHANGING_ROW         = 4;
+  static final int READING_UNIT         = 5;
+  int machineState = 0;
+
+
+  int UNIT_STEPS = 88;
+  int ROW_STEPS = 16725;
+  int COLS_STEPS = 23083;
+
   MachineController(PApplet parent) {
     // null
     print("[SerialPort] SerialList: ");
@@ -37,13 +52,13 @@ class MachineController {
   void moveX (int steps) {
     accumulated_x=+steps;
     char dir = steps > 0 ? '+' : '-';
-    sendMovementCommand(dir, 500, 'x');
+    sendMovementCommand(dir, abs(steps), 'x');
   }
 
   void moveY (int steps) {
     accumulated_y=+steps;
     char dir = steps > 0 ? '+' : '-';
-    sendMovementCommand(dir, 500, 'y');
+    sendMovementCommand(dir, abs(steps), 'y');
   }
 
   void moveDiagonally (int stepsX, int stepsY) {}
@@ -51,6 +66,7 @@ class MachineController {
   void sendMovementCommand (char dir, int value, char axis) {
     // e.g.: +100x
     String s = dir + String.valueOf(value) + axis;
+    lastMovement = s; 
     println("[SerialPort] sending: " + s);
     port.write(s);
   }
@@ -60,6 +76,26 @@ class MachineController {
     // how much delay?
   }
 
+  void runRow () {
+    machineState = READING_ROW;
+    moveX(ROW_STEPS);
+  }
+  
+  void runRowInverse () {
+    machineState = READING_ROW_INVERSE;
+    moveX(-ROW_STEPS);
+  }
+
+  void jumpRow () {
+    machineState = READING_ROW;
+    moveY(UNIT_STEPS);
+  }
+
+  void runPlate () {
+    machineState = READING_ROW;
+    moveX(ROW_STEPS);
+  }
+
   void listenToSerialEvents () {
     if ( port.available() > 0)  {  // If data is available,
       val = port.readStringUntil('\n');         // read it and store it in val
@@ -67,7 +103,7 @@ class MachineController {
         println(val); //print it out in the console
         if (val.charAt(0) == 'e') {
           // end
-          println("movement over!");
+          println("movement over: ", lastMovement);
           // sendMovementCommand('+', 500, 'y');
         }
       }

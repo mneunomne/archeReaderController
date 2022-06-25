@@ -2,7 +2,7 @@ public class Camera {
   Capture video;
   PApplet parent;
   
-  int captureSize = 2;
+  int captureSize = 8;
   int capturePosX, capturePosY;
   int w,h;
 
@@ -23,7 +23,7 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[1]);
+      video = new Capture(parent, cameras[0]);
       video.start();
     }
 
@@ -54,5 +54,19 @@ public class Camera {
     }
     int average = floor(sum/(captureSize*captureSize));
     return average;
+  }
+
+  int [] getCenterMatrix () {
+    int interval = 10;
+    int [] matrix = new int[9];
+    for(int y = capturePosY; y < capturePosY+captureSize; y++) {
+      for(int x = capturePosX; x < capturePosX+captureSize; x++) {
+        for (int i = 0; i < matrix.length; i++) {
+          int index = x+y*w;
+          float b = red(video.pixels[index]);
+        }
+      }  
+    }
+    return matrix;
   }
 }

@@ -6,6 +6,14 @@
 // 88 -> 1mm
 #define ENA_PIN 8
 
+#define microX1 1
+#define microX2 3
+#define microX3 4
+
+#define microY1 1
+#define microY2 3
+#define microY3 4
+
 char c;
 
 void setup() {
@@ -66,9 +74,7 @@ void loop() {
 void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-
-  moveX(100, 1);
-  
+  // moveX(100, 1);
 }
 
 void moveX (int steps, int dir) {

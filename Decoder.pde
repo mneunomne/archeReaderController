@@ -63,6 +63,12 @@ public class Decoder {
 
   void update () {
     currentLiveValue = cam.getCenterValue();
+    if (sendFakeData) {
+      sendTestData();
+    }
+  }
+
+  void sendTestData () {
     if (frameCount % 5 == 0) {
       if (currentIndex >= originalNumbers.length) {
         currentIndex = 0;
