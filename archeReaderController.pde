@@ -33,8 +33,24 @@ int threshold_default   = 150;
 int small_steps_default = UNIT_STEPS;
 int big_steps_default   = ROW_STEPS;
 
-// for debuging
-String [] states = {"IDLE","READING_ROW","READING_ROW_INVERSE","CHANGING_ROW","READING_UNIT"};
+// Macro States
+static final int MACRO_IDLE               = 0;
+static final int RUNNING_WASD_COMMAND     = 1;
+static final int READING_UNIT             = 2;
+static final int READING_ROW              = 3;
+static final int RUNNING_PLATE            = 4;
+static final int SENDING_FAKE_DATA        = 5;
+int macroState = 0;
+int [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","RUNNING_PLATE","SENDING_FAKE_DATA"};
+
+// Machine States
+static final int MACHINE_IDLE         = 10;
+static final int RUNNING_ROW_INVERSE  = 11;
+static final int RUNNING_ROW          = 12;
+static final int JUMPING_ROW          = 13;
+static final int RUNNING_UNIT         = 14;
+int machineState = 0;
+int [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT"};
 
 /* Debug variables */
 boolean sendFakeData = false;
@@ -105,8 +121,8 @@ void read_row () {
   machineController.runRow();
 }
 
-// wasd movement keys
-void keyPressed() {
+void wasd_command (char key) {
+  machineState = RUNNING_WASD_COMMAND;
   switch (key) {
     /* Movements */
     case 'w': machineController.moveY(small_steps); break;
@@ -118,6 +134,21 @@ void keyPressed() {
     case 'A': machineController.moveX(big_steps); break;
     case 'S': machineController.moveY(-big_steps); break;
     case 'D': machineController.moveX(-big_steps); break;
+  }
+}
+
+// wasd movement keys
+void keyPressed() {
+  switch (key) {
+    /* Movements */
+    case 'w': 
+    case 'a': 
+    case 's': 
+    case 'd': 
+    case 'W': 
+    case 'A': 
+    case 'S': 
+    case 'D': wasd_command(key); break;
     /* end movements */
     case 'r': decoder.storeDataPoint(); break;
     case 'f': oscController.sendFinalAudio(); break;

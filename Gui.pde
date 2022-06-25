@@ -108,20 +108,21 @@ public class Gui {
 
   void display () {
     int fy = y;
-    /*
-    cp5.addTextlabel("currentState")
-        .setText("currentState: " + states[currentState])
+    
+    cp5.addTextlabel("macroState")
+        .setText("macroState: " + macroStates[macroState])
         .setPosition(margin,fy)
         .setColorValue(0xffffffff)
         ;
     fy+=margin+10;
-    */
-    cp5.addTextlabel("sendFakeData")
-        .setText("sendFakeData: " + sendFakeData)
+
+    cp5.addTextlabel("machineState")
+        .setText("machineState: " + machineStates[machineState])
         .setPosition(margin,fy)
         .setColorValue(0xffffffff)
         ;
     fy+=margin+10;
+    
   }
 
   /*

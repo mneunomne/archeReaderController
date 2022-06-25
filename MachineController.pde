@@ -11,14 +11,6 @@ class MachineController {
 
   String lastMovement;
 
-  static final int IDLE                 = 0;
-  static final int MOVING               = 1;
-  static final int READING_ROW_INVERSE  = 2;
-  static final int READING_ROW          = 3;
-  static final int CHANGING_ROW         = 4;
-  static final int READING_UNIT         = 5;
-  int machineState = 0;
-
 
   int UNIT_STEPS = 88;
   int ROW_STEPS = 16725;
@@ -77,22 +69,22 @@ class MachineController {
   }
 
   void runRow () {
-    machineState = READING_ROW;
+    machineState = RUNNING_ROW;
     moveX(ROW_STEPS);
   }
   
   void runRowInverse () {
-    machineState = READING_ROW_INVERSE;
+    machineState = RUNNING_ROW_INVERSE;
     moveX(-ROW_STEPS);
   }
 
   void jumpRow () {
-    machineState = READING_ROW;
+    machineState = RUNNING_ROW;
     moveY(UNIT_STEPS);
   }
 
   void runPlate () {
-    machineState = READING_ROW;
+    machineState = RUNNING_ROW;
     moveX(ROW_STEPS);
   }
 
@@ -105,8 +97,16 @@ class MachineController {
           // end
           println("movement over: ", lastMovement);
           // sendMovementCommand('+', 500, 'y');
+          onMovementEnd();
         }
       }
+    }
+  }
+
+  void onMovementEnd () {
+    switch (macroState) {
+      case RUNNING_WASD_COMMAND:
+        macroState = MACRO_IDLE; break;
     }
   }
 }
