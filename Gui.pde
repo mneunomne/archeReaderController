@@ -137,7 +137,7 @@ public class Gui {
   void display () {
     fill(255);
     int fy = y + margin;
-    text("timeElapsed: " + floor(millis()/1000), margin,fy);
+    text("timeElapsed: " + millis()/1000, margin,fy);
     fy+=margin+5;
     text("macroState: " + macroStates[macroState], margin,fy);
     fy+=margin+5;
@@ -149,51 +149,12 @@ public class Gui {
     fy+=margin+5;
   }
 
-
+  // old
   /*
-  void chartMatrix () {
-    // initial values for the chart data
-    for (int i = 0; i < 100; i++) {
-      for (int j = 0; j < 9; j++) {
-        last_values[i][j] = 0;
-      }
-    }
-    int c_x = margin; 
-    int c_y = margin;
-    int c_x = margin; 
-    int c_y = margin;
-    for (int i = 0; i<9; i++){
-      int ix = i%3;
-      int iy = floor(i/3);
-      charts[i] = cp5.addChart("dataflow_"+i)
-        .setPosition(ix*chart_w/3, iy*chart_h/3)
-        .setSize(chart_w/3, chart_h/3)
-        .setRange(0, 255)
-        .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
-        .setStrokeWeight(1.5)
-        .setColorCaptionLabel(color(255))
-        ;
-      charts[i].addDataSet("incoming");
-      charts[i].setData("incoming", new float[100]);
-    }
-
-    // threshold slider
-    cp5.addSlider("threshold_slider")
-      .setPosition(margin+chart_w,y)
-      .setSize(cp_height, chart_h)
-      .setValue(threshold_default)
-      .setRange(0, 255)
-      .setLabelVisible(true)
-      ;
-    y+=chart_h+margin+10; 
-  }
-  */
-
   void updateChart (float value) {
     myChart.push("incoming", value);
-    //stroke(255, 0, 0);
-    //line(0, (threshold/255)*100, 200, (threshold/255)*100);
   }
+  */
 
   void updateCharts (int [] values) {
     for (int i = 0; i < values.length; i++) {

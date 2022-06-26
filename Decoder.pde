@@ -107,10 +107,11 @@ public class Decoder {
 
   void render_grid () {
     pg.beginDraw();
+    pg.background(0, 0);
     int x = 0;
     int y = 0;
     for (int i = 0; i < length; i++) {  
-      pg.stroke(bits[i]*255);
+      pg.stroke(bits[i]*255, 55+bits[i]*200);
       pg.point(x, y);
       if (x > cols) {
         x=0;

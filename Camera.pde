@@ -6,7 +6,7 @@ public class Camera {
   int capturePosX, capturePosY;
   int w,h;
 
-  int unitPixelSize = 8;
+  int unitPixelSize = 14;
 
   int [] capturedValues; 
 
@@ -18,10 +18,10 @@ public class Camera {
   void init() {
     String[] cameras = Capture.list();
     if (cameras.length == 0) {
-      println("There are no cameras available for capture.");
+      println("[Camera] There are no cameras available for capture.");
       exit();
     } else {
-      println("Available cameras:");
+      println("[Camera] Available cameras:");
       for (int i = 0; i < cameras.length; i++) {
         println(cameras[i]);
       }
@@ -34,7 +34,7 @@ public class Camera {
     w = video.width;
     h = video.height;
 
-    println("video size", w, h);
+    println("[Camera] video size", w, h);
     
     capturePosX = w/2-captureSize/2;
     capturePosY = h/2-captureSize/2;
@@ -46,6 +46,7 @@ public class Camera {
 
 
   void display() {
+    tint(255, 0, 0);
     image(video, 0, 0, width, height);
     stroke(255, 0, 0);
     noFill();
