@@ -125,10 +125,12 @@ public class Gui {
     fill(255);
     int fy = y + margin;
     text("macroState: " + macroStates[macroState], margin,fy);
-    fy+=margin+10;
+    fy+=margin+5;
     text("machineState: " + machineStates[machineState], margin,fy);
     fy+=margin+5;
     text("decoderState: " + decoderStates[decoderState], margin,fy);
+    fy+=margin+5;
+    text("current_row_index: " + current_row_index, margin,fy);
     fy+=margin+5;
   }
 

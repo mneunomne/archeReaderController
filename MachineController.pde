@@ -4,7 +4,6 @@ class MachineController {
   int accumulated_x = 0;
   int accumulated_y = 0;
   boolean isRunning;
-  int current_row_index = 0;
   String lastMovement;
   int lastDir = 0; 
 
@@ -89,6 +88,7 @@ class MachineController {
         // start
         switch (c) {
           case 's': // start
+            println("movement start", macroState);
             onMovementStart();
             break;
           case 'e': // end
@@ -104,11 +104,22 @@ class MachineController {
   void onMovementStart () {
     switch (macroState) {
       case READING_ROW:
-        decoder.startReadingRow(current_row_index);
-        break;
       case READING_ROW_INVERSE:
-        decoder.startReadingRowInverted(current_row_index);
-        break;
+      case READING_PLATE:
+      switch (machineState) {
+        case RUNNING_ROW_INVERSE:
+          // interpret signal
+          decoder.startReadingRowInverted(); // is inverted
+          // jump to next row
+          if (current_row_index < PLATE_ROWS) jumpRow();
+          break;
+        case RUNNING_ROW:
+          // interpret signal
+          decoder.startReadingRow(); // is inverted
+          // jump to next row
+          if (current_row_index < PLATE_ROWS) jumpRow();
+          break;
+      }
     }
   }
 
@@ -123,11 +134,13 @@ class MachineController {
         break;
       case READING_ROW:
         // interpret signal and push to database? (or does this happen live)
+        decoder.endReading(false);
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
         break;
       case READING_ROW_INVERSE:
         // interpret signal inverted
+        decoder.endReading(true);
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
         break;

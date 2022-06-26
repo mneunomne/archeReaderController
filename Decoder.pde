@@ -11,8 +11,6 @@ public class Decoder {
   int grid_width=cols;
   int grid_height=rows;
 
-  int currentRowIndex = 0;
-
   PGraphics pg;
 
   // original numbers audioloadJSONArray
@@ -40,10 +38,9 @@ public class Decoder {
   void storeDataPoint () {
     char bit = currentLiveValue > threshold ? '0' : '1';
     bString = bString + bit;
-    currentRowIndex++;
     // every 8 read signals, send to max
     if (bString.length() >= 8) {
-      oscController.sendOscAccumulatedData(getSignalArray(), currentRowIndex);
+      oscController.sendOscAccumulatedData(getSignalArray(), current_row_index);
     } else {
       // bit string not long enough yet.
       return; 
@@ -80,15 +77,15 @@ public class Decoder {
 
   void sendTestData () {
     if (frameCount % 5 == 0) {
-      if (currentRowIndex >= originalNumbers.length) {
-        currentRowIndex = 0;
+      if (current_row_index >= originalNumbers.length) {
+        current_row_index = 0;
       }
-      currentRowIndex++;
-      int [] numbers = new int [currentRowIndex];
-      for (int i = 0; i < currentRowIndex; i++) {
+      current_row_index++;
+      int [] numbers = new int [current_row_index];
+      for (int i = 0; i < current_row_index; i++) {
         numbers[i] = originalNumbers[i];
       }
-      oscController.sendOscAccumulatedData(numbers, currentRowIndex);
+      oscController.sendOscAccumulatedData(numbers, current_row_index);
     }
   }
 
@@ -114,27 +111,27 @@ public class Decoder {
     pg.endDraw();
   }
 
-  void startReadingRow (int current_row_index) {
+  void startReadingRow () {
     rowBytes.clear();
     decoderState = READING_ROW_DATA;
-    currentRowIndex = current_row_index;
   }
 
-  void startReadingRowInverted (int current_row_index) {
+  void startReadingRowInverted () {
     rowBytes.clear();
     decoderState = READING_ROW_DATA_INVERTED;
-    currentRowIndex = current_row_index;
   }
 
   void endReading (boolean isInverted) {
     if (isInverted) Collections.reverse(rowBytes);
-    int interval = floor(rowBytes.size()/cols);
-    int index=currentRowIndex*cols; 
-    for (int i = 0; i < rowBytes.size(); i+=interval) { 
-      int n = rowBytes.get(i);
+    float interval = float(rowBytes.size())/cols;
+    float j = 0;
+    int index=current_row_index*cols; 
+    println("[Decoder] endReading", index, interval, rowBytes.size());
+    for (int i = 0; i < cols; i++) { 
+      int n = rowBytes.get(floor(j));
       int bit = n > threshold ? 0 : 1;
-      bits[index] = bit;
-      index++;
+      bits[index+i] = bit;
+      j+=interval;
     }
   } 
 

@@ -23,7 +23,7 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[0]);
+      video = new Capture(parent, cameras[1]);
       video.start();
     }
 

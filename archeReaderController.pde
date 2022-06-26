@@ -59,11 +59,12 @@ static final int READING_ROW_DATA           = 1;
 static final int READING_ROW_DATA_INVERTED  = 2;
 static final int SENDING_FAKE_DATA          = 3;
 int decoderState = 0;
-String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","SENDING_FAKE_DATA"};
+String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_FAKE_DATA"};
 
 int threshold   = 150;
 int small_steps = 250;
 int big_steps   = 8000;
+int current_row_index = 0;
 
 int threshold_default   = 150;
 int small_steps_default = UNIT_STEPS;
