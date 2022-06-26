@@ -32,24 +32,24 @@ int PLATE_COLS = 192;
 static int MARGIN = 10;
 
 // Macro States
-static final int MACRO_IDLE               = 0;
-static final int RUNNING_WASD_COMMAND     = 1;
-static final int READING_UNIT             = 2;
-static final int READING_ROW              = 3;
-static final int READING_ROW_INVERSE      = 4;
-static final int READING_PLATE            = 5;
-static final int STOP_MACHINE             = 6;
-static final int RETURNING_TOP            = 7;
+static final int MACRO_IDLE                 = 0;
+static final int RUNNING_WASD_COMMAND       = 1;
+static final int READING_UNIT               = 2;
+static final int READING_ROW                = 3;
+static final int READING_ROW_INVERSE        = 4;
+static final int READING_PLATE              = 5;
+static final int STOP_MACHINE               = 6;
+static final int RETURNING_TOP              = 7;
 int macroState = 0;
 String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP"};
 
 // Machine States
-static final int MACHINE_IDLE         = 0;
-static final int RUNNING_ROW_INVERSE  = 1;
-static final int RUNNING_ROW          = 2;
-static final int JUMPING_ROW          = 3;
-static final int RUNNING_UNIT         = 4;
-static final int RUNNING_WASD         = 5;
+static final int MACHINE_IDLE               = 0;
+static final int RUNNING_ROW_INVERSE        = 1;
+static final int RUNNING_ROW                = 2;
+static final int JUMPING_ROW                = 3;
+static final int RUNNING_UNIT               = 4;
+static final int RUNNING_WASD               = 5;
 int machineState = 0;
 String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD"};
 
@@ -61,10 +61,22 @@ static final int SENDING_FAKE_DATA          = 3;
 int decoderState = 0;
 String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_FAKE_DATA"};
 
+// Camera States
+static final int CAMERA_IDLE                = 0;
+static final int READ_CENTER_VALUE          = 1;
+static final int READ_MULTIPLE_VALUES       = 2;
+int cameraState = 0;
+String [] decoderStates = {"CAMERA_IDLE","READ_CENTER_VALUE","READ_MULTIPLE_VALUES"};
+
 int threshold   = 150;
 int small_steps = 250;
 int big_steps   = 8000;
 int current_row_index = 0;
+
+// ArrayList<Integer> currentRowIndexes = new ArrayList<Integer>(); 
+
+int reading_points_default = 5; 
+int ammountReadingPoints = 5; 
 
 int threshold_default   = 150;
 int small_steps_default = UNIT_STEPS;
@@ -126,7 +138,6 @@ void draw() {
   ControlP5 listeners
 */
 void threshold_slider (float value) {
-  // on slider change
   threshold = floor(value);
 }
 
@@ -134,10 +145,16 @@ void small_steps_slider (float value) {
   small_steps = floor(value);
   println("small_steps_slider", value, small_steps);
 }
+
 void big_steps_slider (float value) {
   big_steps = floor(value);
   println("big_steps_slider", value, big_steps);
 }
+
+void reading_points_slider (float value) {
+  println("reading_points_default", value, reading_points_default);
+}
+
 /*
   ControlP5 Bang Buttons
 */

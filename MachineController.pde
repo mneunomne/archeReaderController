@@ -59,7 +59,7 @@ class MachineController {
   void runRow () {
     lastDir = 1;
     machineState = RUNNING_ROW;
-    moveX(ROW_STEPS);
+    moveX(ROW_STEPS * ammountReadingPoints);
   }
   
   void runRowInverse () {
@@ -75,8 +75,12 @@ class MachineController {
   }
 
   void runPlate () {
-    machineState = READING_PLATE;
-    moveX(ROW_STEPS);
+    if (ammountReadingPoints > 1) {
+      // need to move the camera down before it starts
+    } else {
+      machineState = READING_PLATE;
+      moveX(ROW_STEPS);
+    }
   }
 
   void listenToSerialEvents () {
@@ -109,15 +113,11 @@ class MachineController {
       switch (machineState) {
         case RUNNING_ROW_INVERSE:
           // interpret signal
-          decoder.startReadingRowInverted(); // is inverted
-          // jump to next row
-          if (current_row_index < PLATE_ROWS) jumpRow();
+          decoder.startReadingRowInverted(); // is inverte
           break;
         case RUNNING_ROW:
           // interpret signal
           decoder.startReadingRow(); // is inverted
-          // jump to next row
-          if (current_row_index < PLATE_ROWS) jumpRow();
           break;
       }
     }
@@ -156,13 +156,21 @@ class MachineController {
         // interpret signal
         decoder.endReading(true); // is inverted
         // jump to next row
-        if (current_row_index < PLATE_ROWS) jumpRow();
+        if (current_row_index < PLATE_ROWS) {
+          jumpRow();
+        } else {
+          returnToTop();
+        }  
         break;
       case RUNNING_ROW:
         // interpret signal
         decoder.endReading(false); // is inverted
         // jump to next row
-        if (current_row_index < PLATE_ROWS) jumpRow();
+        if (current_row_index < PLATE_ROWS) {
+          jumpRow();
+        } else {
+          returnToTop();
+        }
         break;
       case JUMPING_ROW: 
         if (lastDir < 0) {

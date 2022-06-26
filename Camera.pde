@@ -6,6 +6,8 @@ public class Camera {
   int capturePosX, capturePosY;
   int w,h;
 
+  int unitPixelSize = 8;
+
   Camera(PApplet _parent) {
     // null
     parent = _parent;
@@ -41,7 +43,11 @@ public class Camera {
     image(video, 0, 0, width, height);
     stroke(255, 0, 0);
     noFill();
-    rect((float(capturePosX)/w)*width, (float(capturePosY)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width); 
+    // capture
+    rect((float(capturePosX)/w)*width, (float(capturePosY)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width);
+    // unitPixelSize
+    stroke(0, 0, 255);
+    rect((float(unitPixelSize)/w)*width, (float(unitPixelSize)/h)*height, (float(unitPixelSize)/w)*width, (float(unitPixelSize)/w)*width); 
   }
 
   int getCenterValue () {
@@ -58,13 +64,15 @@ public class Camera {
     return average;
   }
 
-  int [] getCenterMatrix () {
+  // only pairs
+  int [] getCenterValues (int ammount) {
     int interval = 10;
-    int [] matrix = new int[9];
+    int [] values = new int[ammount];
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
-        for (int i = 0; i < matrix.length; i++) {
-          int index = x+y*w;
+        for (int i = -ammount/2; i < ammount/2; i++) {
+          int fy = y+(i*unitPixelSize);
+          int index = x+fy*w;
           float b = red(video.pixels[index]);
         }
       }  

@@ -6,7 +6,7 @@ public class Decoder {
   int [] bits = new int[length];
   String bString = "";
 
-  ArrayList<Integer> rowBytes = new ArrayList<Integer>();
+  ArrayList<ArrayList<Integer>> rowBytes = new ArrayList<ArrayList<Integer>>();
 
   int grid_width=cols;
   int grid_height=rows;
@@ -18,6 +18,8 @@ public class Decoder {
   int [] originalNumbers;
 
   int currentLiveValue = 0; 
+
+  ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
 
   Decoder () {
     pg = createGraphics(width, height);
@@ -61,13 +63,21 @@ public class Decoder {
     return values;
   }
 
-  void update () {
-    currentLiveValue = cam.getCenterValue();
+  void update () {    
+    // get multiple values at once
+    int [] camValues = cam.getCenterValues(ammountReadingPoints);
+    currentLiveValues.clear();
+    for (int i = 0; i < ammountReadingPoints; i++) {
+      currentLiveValues.add(camValues[i]);
+    }
+
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
-        // byte b = (byte) currentLiveValue;
-        rowBytes.add(currentLiveValue);
+        matrix.add(new ArrayList<Integer>());
+        for (int i = 0; i < ammountReadingPoints; i++) {
+          rowBytes.get(i).add(currentLiveValue.get(i));
+        }
         break;
       case SENDING_FAKE_DATA:
         sendTestData();
@@ -122,17 +132,27 @@ public class Decoder {
   }
 
   void endReading (boolean isInverted) {
-    if (isInverted) Collections.reverse(rowBytes);
-    float interval = float(rowBytes.size())/cols;
-    float j = 0;
-    int index=current_row_index*cols; 
-    println("[Decoder] endReading", index, interval, rowBytes.size());
-    for (int i = 0; i < cols; i++) { 
-      int n = rowBytes.get(floor(j));
-      int bit = n > threshold ? 0 : 1;
-      bits[index+i] = bit;
-      j+=interval;
+    for (int r = 0; r < rowBytes.size(); r++) {
+
+      ArrayList dataRow = rowBytes.get(r);
+
+      if (isInverted) {
+        Collections.reverse(dataRow);
+      }
+      float interval = float(dataRow.size())/cols;
+      float j = 0;
+      int index=(current_row_index + r)*cols; 
+      println("[Decoder] endReading", index, interval, dataRow.size());
+      for (int i = 0; i < cols; i++) { 
+        int n = dataRow.get(floor(j));
+        int bit = n > threshold ? 0 : 1;
+        bits[index+i] = bit;
+        j+=interval;
+      }
     }
+
+    
+    decoderState = DECODER_IDLE;
   } 
 
   int [] getFinalAudio () {

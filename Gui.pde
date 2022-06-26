@@ -43,6 +43,14 @@ public class Gui {
       .setRange(1000, 25000)
       ;
     y+=cp_height+margin;
+    cp5.addSlider("reading_points_slider")
+      .setPosition(margin,y)
+      .setSize(cp_width, cp_height)
+      .setNumberOfTickMarks(5)
+      .setValue(reading_points_default)
+      .setRange(1, 7)
+      ;
+    y+=cp_height+margin;
   }
 
   void buttons () {
@@ -123,6 +131,8 @@ public class Gui {
 
   void display () {
     fill(255);
+    int fy = y + margin;
+    text("timeElapsed: " + floor(millis()/1000), margin,fy);
     int fy = y + margin;
     text("macroState: " + macroStates[macroState], margin,fy);
     fy+=margin+5;
