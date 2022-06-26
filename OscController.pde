@@ -24,6 +24,10 @@ class OscController {
     // println("[OscController] send live_data", message);
   }
 
+  void sendLiveDataArray (int [] data) {
+
+  }
+
   /* Accumulated Data */
   void sendOscAccumulatedData (int [] data, int index) {
     OscMessage message = new OscMessage("/accumulated_data");

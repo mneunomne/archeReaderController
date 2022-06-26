@@ -66,7 +66,7 @@ static final int CAMERA_IDLE                = 0;
 static final int READ_CENTER_VALUE          = 1;
 static final int READ_MULTIPLE_VALUES       = 2;
 int cameraState = 0;
-String [] decoderStates = {"CAMERA_IDLE","READ_CENTER_VALUE","READ_MULTIPLE_VALUES"};
+String [] cameraStates = {"CAMERA_IDLE","READ_CENTER_VALUE","READ_MULTIPLE_VALUES"};
 
 int threshold   = 150;
 int small_steps = 250;
@@ -75,8 +75,8 @@ int current_row_index = 0;
 
 // ArrayList<Integer> currentRowIndexes = new ArrayList<Integer>(); 
 
-int reading_points_default = 5; 
-int ammountReadingPoints = 5; 
+int reading_points_default = 7; 
+int ammountReadingPoints = 7; 
 
 int threshold_default   = 150;
 int small_steps_default = UNIT_STEPS;
@@ -120,11 +120,13 @@ void draw() {
   machineController.listenToSerialEvents();
 
   // display camera in interface
+  cam.update();
   cam.display();
 
   // update gui chart with the value from the camera 
-  float currentCameraValue = cam.getCenterValue();
-  gui.updateChart(currentCameraValue);
+  // gui.updateChart(currentCameraValue);
+  
+  gui.updateCharts(cam.getCenterValues());
   gui.display();
 
   // display decoding interface
@@ -152,7 +154,7 @@ void big_steps_slider (float value) {
 }
 
 void reading_points_slider (float value) {
-  println("reading_points_default", value, reading_points_default);
+  ammountReadingPoints = int(value);
 }
 
 /*

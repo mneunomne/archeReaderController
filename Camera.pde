@@ -8,6 +8,8 @@ public class Camera {
 
   int unitPixelSize = 8;
 
+  int [] capturedValues; 
+
   Camera(PApplet _parent) {
     // null
     parent = _parent;
@@ -38,16 +40,24 @@ public class Camera {
     capturePosY = h/2-captureSize/2;
   }
 
+  void update () {
+    setCenterValues(ammountReadingPoints);
+  }
+
 
   void display() {
     image(video, 0, 0, width, height);
     stroke(255, 0, 0);
     noFill();
     // capture
-    rect((float(capturePosX)/w)*width, (float(capturePosY)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width);
     // unitPixelSize
     stroke(0, 0, 255);
-    rect((float(unitPixelSize)/w)*width, (float(unitPixelSize)/h)*height, (float(unitPixelSize)/w)*width, (float(unitPixelSize)/w)*width); 
+    rect((float(unitPixelSize)/w)*width, (float(unitPixelSize)/h)*height, (float(unitPixelSize)/w)*width, (float(unitPixelSize)/w)*width);
+
+    for(int i = 0; i < capturedValues.length; i++) {
+      int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
+      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width);
+    }
   }
 
   int getCenterValue () {
@@ -65,18 +75,24 @@ public class Camera {
   }
 
   // only pairs
-  int [] getCenterValues (int ammount) {
+  void setCenterValues (int ammount) {
     int interval = 10;
     int [] values = new int[ammount];
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
-        for (int i = -ammount/2; i < ammount/2; i++) {
-          int fy = y+(i*unitPixelSize);
+        for (int i = 0; i < ammount; i++) {
+          int ix = i-ammount/2;
+          int fy = y+(ix*unitPixelSize);
           int index = x+fy*w;
           float b = red(video.pixels[index]);
+          values[i] = floor(b);
         }
       }  
     }
-    return matrix;
+    capturedValues = values;
+  }
+
+  int [] getCenterValues () {
+    return capturedValues;
   }
 }

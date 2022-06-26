@@ -34,7 +34,6 @@ public class Decoder {
     for (int i = 0; i < originalNumbersJSON.size(); i++) {
       originalNumbers[i] = originalNumbersJSON.getInt(i);
     }
-    println("originalNumbers", originalNumbers);
   }
 
   void storeDataPoint () {
@@ -65,19 +64,21 @@ public class Decoder {
 
   void update () {    
     // get multiple values at once
-    int [] camValues = cam.getCenterValues(ammountReadingPoints);
+    int [] camValues = cam.getCenterValues();
     currentLiveValues.clear();
     for (int i = 0; i < ammountReadingPoints; i++) {
       currentLiveValues.add(camValues[i]);
     }
 
+    // send data to Max as array, not the arrayList 
+    oscController.sendLiveDataArray(camValues);
+    gui.updateCharts(camValues);
+
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
-        matrix.add(new ArrayList<Integer>());
-        for (int i = 0; i < ammountReadingPoints; i++) {
-          rowBytes.get(i).add(currentLiveValue.get(i));
-        }
+        // store data in rowBytes ArrayList 
+        rowBytes.add(currentLiveValues);
         break;
       case SENDING_FAKE_DATA:
         sendTestData();
@@ -133,9 +134,7 @@ public class Decoder {
 
   void endReading (boolean isInverted) {
     for (int r = 0; r < rowBytes.size(); r++) {
-
-      ArrayList dataRow = rowBytes.get(r);
-
+      ArrayList<Integer> dataRow = rowBytes.get(r);
       if (isInverted) {
         Collections.reverse(dataRow);
       }
@@ -150,8 +149,6 @@ public class Decoder {
         j+=interval;
       }
     }
-
-    
     decoderState = DECODER_IDLE;
   } 
 

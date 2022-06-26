@@ -1,6 +1,8 @@
 public class Gui {
 
   Chart myChart;
+  
+  Chart [] dataCharts = new Chart[ammountReadingPoints];
 
   ControlP5 cp5;
   int [] last_values = new int [100];
@@ -8,7 +10,7 @@ public class Gui {
   int cp_width = 200;
   int cp_height = 10;
 
-  int chart_h = 100;
+  int chart_h = 200;
   int chart_w = 200;
   
   int margin = MARGIN;
@@ -46,7 +48,7 @@ public class Gui {
     cp5.addSlider("reading_points_slider")
       .setPosition(margin,y)
       .setSize(cp_width, cp_height)
-      .setNumberOfTickMarks(5)
+      .setNumberOfTickMarks(4)
       .setValue(reading_points_default)
       .setRange(1, 7)
       ;
@@ -104,16 +106,19 @@ public class Gui {
     for (int i = 0; i < last_values.length; i++) {
       last_values[i] = 0;
     }
-    myChart = cp5.addChart("dataflow")
-      .setPosition(margin, margin)
-      .setSize(chart_w, chart_h)
-      .setRange(0, 255)
-      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
-      .setStrokeWeight(1.5)
-      .setColorCaptionLabel(color(255))
-      ;
-    myChart.addDataSet("incoming");
-    myChart.setData("incoming", new float[100]);
+    for (int i = 0; i < ammountReadingPoints; i++) {
+      int fh = chart_h/ammountReadingPoints;
+      dataCharts[i] = cp5.addChart("dataflow_" + i)
+        .setPosition(margin, margin + (fh * i))
+        .setSize(chart_w, chart_h/ammountReadingPoints)
+        .setRange(0, 255)
+        .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+        .setStrokeWeight(1.5)
+        .setColorCaptionLabel(color(255))
+        ;
+      dataCharts[i].addDataSet("incoming_" + i);
+      dataCharts[i].setData("incoming_" + i, new float[100]);
+    }
 
     // threshold slider
     cp5.addSlider("threshold_slider")
@@ -133,7 +138,7 @@ public class Gui {
     fill(255);
     int fy = y + margin;
     text("timeElapsed: " + floor(millis()/1000), margin,fy);
-    int fy = y + margin;
+    fy+=margin+5;
     text("macroState: " + macroStates[macroState], margin,fy);
     fy+=margin+5;
     text("machineState: " + machineStates[machineState], margin,fy);
@@ -186,7 +191,13 @@ public class Gui {
 
   void updateChart (float value) {
     myChart.push("incoming", value);
-    stroke(255, 0, 0);
-    line(0, (threshold/255)*100, 200, (threshold/255)*100);
+    //stroke(255, 0, 0);
+    //line(0, (threshold/255)*100, 200, (threshold/255)*100);
+  }
+
+  void updateCharts (int [] values) {
+    for (int i = 0; i < values.length; i++) {
+      dataCharts[i].push("incoming_"+i, values[i]);
+    }
   }
 }
