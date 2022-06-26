@@ -5,11 +5,10 @@ class MachineController {
   int accumulated_y = 0;
   boolean isRunning;
   String lastMovement;
-  int lastDir = 0; 
 
   MachineController(PApplet parent) {
     // null
-    print("[SerialPort] SerialList: ");
+    print("[MachineController] SerialList: ");
     printArray(Serial.list());
     String portName = Serial.list()[6]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
@@ -46,7 +45,7 @@ class MachineController {
     // e.g.: +100x
     String s = dir + String.valueOf(value) + axis;
     lastMovement = s; 
-    println("[SerialPort] sending: " + s);
+    println("[MachineController] sending: " + s);
     port.write(s);
   }
 
@@ -59,7 +58,7 @@ class MachineController {
   void runRow () {
     lastDir = 1;
     machineState = RUNNING_ROW;
-    moveX(ROW_STEPS * ammountReadingPoints);
+    moveX(ROW_STEPS);
   }
   
   void runRowInverse () {
@@ -69,9 +68,9 @@ class MachineController {
   }
 
   void jumpRow () {
-    current_row_index++;
+    current_row_index+=ammountReadingPoints;
     machineState = JUMPING_ROW;
-    moveY(UNIT_STEPS);
+    moveY(UNIT_STEPS * ammountReadingPoints);
   }
 
   void runPlate () {
@@ -88,15 +87,15 @@ class MachineController {
       val = port.readStringUntil('\n');         // read it and store it in val
       if (val.length() > 0) {
         char c = val.charAt(0);
-        println("listenToSerialEvents", c); //print it out in the console
+        println("[MachineController] listenToSerialEvents", c); //print it out in the console
         // start
         switch (c) {
           case 's': // start
-            println("movement start", macroState);
+            println("[MachineController] movement start", macroStates[macroState]);
             onMovementStart();
             break;
           case 'e': // end
-            println("movement over: ", lastMovement);
+            println("[MachineController] movement over: ", lastMovement);
             if (lastMovement == null) return; // sometimes there is leftover event coming from arduino
             onMovementEnd();
             break;
@@ -113,11 +112,11 @@ class MachineController {
       switch (machineState) {
         case RUNNING_ROW_INVERSE:
           // interpret signal
-          decoder.startReadingRowInverted(); // is inverte
+          decoder.startReadingRowInverted();
           break;
         case RUNNING_ROW:
           // interpret signal
-          decoder.startReadingRow(); // is inverted
+          decoder.startReadingRow();
           break;
       }
     }
@@ -145,12 +144,12 @@ class MachineController {
         machineState = MACHINE_IDLE;
         break;
       case READING_PLATE:
-        whileReadingPlate();
+        onMovementEndReadingPlate();
         break;
     }
   }
 
-  void whileReadingPlate () {
+  void onMovementEndReadingPlate () {
     switch (machineState) {
       case RUNNING_ROW_INVERSE:
         // interpret signal

@@ -8,7 +8,7 @@ public class Camera {
 
   int unitPixelSize = 14;
 
-  int [] capturedValues; 
+  int [] capturedValues;
 
   Camera(PApplet _parent) {
     // null

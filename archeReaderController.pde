@@ -75,12 +75,12 @@ int current_row_index = 0;
 
 // ArrayList<Integer> currentRowIndexes = new ArrayList<Integer>(); 
 
-int reading_points_default = 7; 
-int ammountReadingPoints = 7; 
-
-int threshold_default   = 150;
 int small_steps_default = UNIT_STEPS;
 int big_steps_default   = ROW_STEPS;
+int reading_points_default = 7; 
+int ammountReadingPoints = 7; 
+int threshold_default   = 150;
+int lastDir = 0; 
 
 /* Debug variables */
 boolean sendFakeData = false;

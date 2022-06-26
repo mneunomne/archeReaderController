@@ -142,7 +142,7 @@ public class Decoder {
       float interval = float(dataRow.size())/cols;
       float j = 0;
       int index=(current_row_index + r)*cols; 
-      println("[Decoder] endReading", index, interval, dataRow.size());
+      println("[Decoder] endReading", index, interval, dataRow.size()); // FIX
       for (int i = 0; i < cols; i++) { 
         int n = dataRow.get(floor(j));
         int bit = n > threshold ? 0 : 1;

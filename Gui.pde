@@ -97,8 +97,7 @@ public class Gui {
       .setPosition(fx, fy)
       .setSize(button_w, button_h)
       ;
-    fy+= button_h+margin+10; 
-    
+    fy+= button_h+margin+10;  
   }
 
   void chart () {
@@ -146,6 +145,8 @@ public class Gui {
     text("decoderState: " + decoderStates[decoderState], margin,fy);
     fy+=margin+5;
     text("current_row_index: " + current_row_index, margin,fy);
+    fy+=margin+5;
+    text("last_direction: " + lastDir, margin,fy);
     fy+=margin+5;
   }
 
