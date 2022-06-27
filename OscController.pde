@@ -56,7 +56,7 @@ class OscController {
   void sendOscAccumulatedData (int [] data, int index) {
     OscMessage message = new OscMessage("/accumulated_data");
     message.add(data);
-    OscMessage messageIndex = new OscMessage("/accumulated_5index");
+    OscMessage messageIndex = new OscMessage("/accumulated_index");
     messageIndex.add(index);
     oscP5.send(message, remoteBroadcast);
     oscP5.send(messageIndex, remoteBroadcast);

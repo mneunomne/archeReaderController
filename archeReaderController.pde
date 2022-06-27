@@ -90,6 +90,7 @@ int threshold_default   = 150;
 int lastDir = 0; 
 
 int [][] lastBits = new int[ammountReadingPoints][8];  
+int [] lastBytes = new int [ammountReadingPoints];
 
 /* Debug variables */
 boolean sendFakeData = false;
@@ -220,6 +221,6 @@ void keyPressed() {
     case 'D': wasd_command(key); break;
     /* end movements */
     case 'r': decoder.storeDataPoint(); break;
-    case 'f': oscController.sendFinalAudio(); break;
+    // case 'f': oscController.sendFinalAudio(); break;
   }
 }

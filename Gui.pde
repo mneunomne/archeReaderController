@@ -163,6 +163,9 @@ public class Gui {
         rx+=rectSize;
         rect(rx, ry, rectSize, rectSize);
       }
+      rx+=rectSize;
+      fill(lastBytes[i]);
+      rect(rx, ry, rectSize, rectSize);
     }
   }
 

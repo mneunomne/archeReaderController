@@ -8,6 +8,8 @@ public class Decoder {
   String bString = "";
 
   ArrayList<ArrayList<Integer>> rowBytes = new ArrayList<ArrayList<Integer>>();
+  
+  ArrayList<Integer> accumulatedBytes = new ArrayList<Integer>();
 
   int grid_width=cols;
   int grid_height=rows;
@@ -80,6 +82,7 @@ public class Decoder {
     for (int i = 0; i < ammountReadingPoints; i++) {
       currentLiveValues.add(camValues[i]);
       rowBytes.get(i).add(camValues[i]);
+      accumulatedBytes.add(camValues[i]);
       booleanValues[i] = camValues[i] > threshold ? 0 : 1;
     }
 
@@ -98,7 +101,7 @@ public class Decoder {
         if (currentReadTime % timePerUnit == 0) {
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
-          oscController.sendLiveDataBits(camValues, proportionalTime);
+          oscController.sendLiveDataBits(booleanValues, proportionalTime);
           
           // read bits!
           for (int i = 0; i < ammountReadingPoints; i++) {
@@ -125,15 +128,14 @@ public class Decoder {
   }
 
   void processLastBits () {
-    int [] bytes = new int [ammountReadingPoints];
     for (int i = 0; i < ammountReadingPoints; i++) {
       String byteString = "";
       for (int b = 0; b < 8; b++) {
         byteString += String.valueOf(lastBits[i][b]);
       }
-      bytes[i] = Integer.parseInt(byteString, 2);
+      lastBytes[i] = Integer.parseInt(byteString, 2);
     }
-    oscController.sendLiveDataBytes(bytes);
+    oscController.sendLiveDataBytes(lastBytes);
   }
 
   void sendTestData () {
@@ -175,6 +177,9 @@ public class Decoder {
   }
 
   void startReadingRow () {
+    if (current_row_index == 0) {
+      accumulatedBytes.clear();
+    }
     startReadTime = millis();
     for (int i = 0; i < ammountReadingPoints;i++) {
       rowBytes.get(i).clear();
@@ -217,9 +222,9 @@ public class Decoder {
   } 
 
   int [] getAccumulatedData (int lastIndex) {
-    int [] accumulatedData = new int[lastIndex];
-    for (int i = 0; i < lastIndex; i++) {
-      accumulatedData[i] = bits[i];
+    int [] accumulatedData = new int[accumulatedBytes.size()];
+    for (int i = 0; i < accumulatedBytes.size(); i++) {
+      accumulatedData[i] = accumulatedBytes.get(i);
     }
     return accumulatedData;
   }
