@@ -1,7 +1,7 @@
 public class Decoder {
   int cols=192;
   int rows=266;
-  int length = 51040;
+  int length = 51072;
   
   int [] bits = new int[length];
   String bString = "";
@@ -33,6 +33,11 @@ public class Decoder {
     originalNumbers = new int[originalNumbersJSON.size()];
     for (int i = 0; i < originalNumbersJSON.size(); i++) {
       originalNumbers[i] = originalNumbersJSON.getInt(i);
+    }
+
+    for (int i = 0; i < ammountReadingPoints;i++) {
+      ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
+      rowBytes.add(rowNumbers);
     }
   }
 
@@ -68,6 +73,7 @@ public class Decoder {
     currentLiveValues.clear();
     for (int i = 0; i < ammountReadingPoints; i++) {
       currentLiveValues.add(camValues[i]);
+      rowBytes.get(i).add(camValues[i]);
     }
 
     // send data to Max as array, not the arrayList 
@@ -77,8 +83,10 @@ public class Decoder {
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
-        // store data in rowBytes ArrayList 
-        rowBytes.add(currentLiveValues);
+        // store data in rowBytes ArrayList
+        for (int i = 0; i < ammountReadingPoints; i++) {
+          rowBytes.get(i).add(camValues[i]);
+        }
         break;
       case SENDING_FAKE_DATA:
         sendTestData();
@@ -102,6 +110,7 @@ public class Decoder {
 
   void display () {
     render_grid();
+    noTint();
     image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
   }
 
@@ -124,12 +133,16 @@ public class Decoder {
   }
 
   void startReadingRow () {
-    rowBytes.clear();
+    for (int i = 0; i < ammountReadingPoints;i++) {
+      rowBytes.get(i).clear();
+    }
     decoderState = READING_ROW_DATA;
   }
 
   void startReadingRowInverted () {
-    rowBytes.clear();
+    for (int i = 0; i < ammountReadingPoints;i++) {
+      rowBytes.get(i).clear();
+    }
     decoderState = READING_ROW_DATA_INVERTED;
   }
 
@@ -142,7 +155,7 @@ public class Decoder {
       float interval = float(dataRow.size())/cols;
       float j = 0;
       int index=(current_row_index + r)*cols; 
-      println("[Decoder] endReading", index, interval, dataRow.size()); // FIX
+      // println("[Decoder] endReading", index, interval, dataRow.size()); // FIX
       for (int i = 0; i < cols; i++) { 
         int n = dataRow.get(floor(j));
         int bit = n > threshold ? 0 : 1;

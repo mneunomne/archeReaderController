@@ -30,14 +30,11 @@ public class Camera {
       video = new Capture(parent, cameras[1]);
       video.start();
     }
-
     w = video.width;
     h = video.height;
-
-    println("[Camera] video size", w, h);
-    
     capturePosX = w/2-captureSize/2;
     capturePosY = h/2-captureSize/2;
+    println("[Camera] video size", w, h);
   }
 
   void update () {
