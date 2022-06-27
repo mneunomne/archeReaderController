@@ -12,6 +12,8 @@ public class Decoder {
   int grid_width=cols;
   int grid_height=rows;
 
+  int lastBitsIndex = 0;
+
   PGraphics pg;
 
   // original numbers audioloadJSONArray
@@ -23,7 +25,6 @@ public class Decoder {
   ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
 
   int startReadTime = 0;
-  int currentReadTime = 0;
 
   Decoder () {
     pg = createGraphics(width, height);
@@ -74,23 +75,44 @@ public class Decoder {
   void update () {    
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
+    int [] booleanValues  = new int [ammountReadingPoints];
     currentLiveValues.clear();
     for (int i = 0; i < ammountReadingPoints; i++) {
       currentLiveValues.add(camValues[i]);
       rowBytes.get(i).add(camValues[i]);
+      booleanValues[i] = camValues[i] > threshold ? 0 : 1;
     }
 
-
-    currentReadTime=(startReadTime-millis());
-    float proportionalTime = currentReadTime/ROW_TIME;
-
-    // send data to Max as array, not the arrayList 
-    oscController.sendLiveDataArray(camValues, proportionalTime);
     gui.updateCharts(camValues);
 
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
+        currentReadTime=(millis()-startReadTime);
+        float proportionalTime = currentReadTime/ROW_TIME;
+
+
+
+        // every time the reader is at a particular bit step
+        int timePerUnit = floor(float(ROW_TIME)/ROW_STEPS);
+        if (currentReadTime % timePerUnit == 0) {
+          // send individual bits data to Max as array, not the arrayList 
+          oscController.sendLiveDataArray(camValues, proportionalTime);
+          oscController.sendLiveDataBits(camValues, proportionalTime);
+          
+          // read bits!
+          for (int i = 0; i < ammountReadingPoints; i++) {
+            lastBits[i][lastBitsIndex] = booleanValues[i];
+          }
+          lastBitsIndex++;
+          if (lastBitsIndex == 8) { // every 8 bits...
+            lastBitsIndex=0;
+            processLastBits();
+            // clear last bits
+            lastBits = new int[ammountReadingPoints][8];
+          }
+        }
+
         // store data in rowBytes ArrayList
         for (int i = 0; i < ammountReadingPoints; i++) {
           rowBytes.get(i).add(camValues[i]);
@@ -100,6 +122,18 @@ public class Decoder {
         sendTestData();
         break;
     }
+  }
+
+  void processLastBits () {
+    int [] bytes = new int [ammountReadingPoints];
+    for (int i = 0; i < ammountReadingPoints; i++) {
+      String byteString = "";
+      for (int b = 0; b < 8; b++) {
+        byteString += String.valueOf(lastBits[i][b]);
+      }
+      bytes[i] = Integer.parseInt(byteString, 2);
+    }
+    oscController.sendLiveDataBytes(bytes);
   }
 
   void sendTestData () {
@@ -149,7 +183,7 @@ public class Decoder {
   }
 
   void startReadingRowInverted () {
-    startReadTime = millis()
+    startReadTime = millis();
     for (int i = 0; i < ammountReadingPoints;i++) {
       rowBytes.get(i).clear();
     }
@@ -157,6 +191,7 @@ public class Decoder {
   }
 
   void endReading (boolean isInverted) {
+    currentReadTime=ROW_TIME;
     int lastIndex = 0;
     for (int r = 0; r < rowBytes.size(); r++) {
       ArrayList<Integer> dataRow = rowBytes.get(r);

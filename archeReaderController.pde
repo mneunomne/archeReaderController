@@ -19,7 +19,7 @@ OscController oscController;
 int [] last_values = new int [100];
 
 /* GLOBALS */
-String MAX_ADDRESS = "10.10.48.121";
+String MAX_ADDRESS = "10.10.48.52";
 int MAX_PORT = 12000;
 
 int UNIT_STEPS = 88;
@@ -73,6 +73,9 @@ int small_steps = 250;
 int big_steps   = 8000;
 int current_row_index = 0;
 
+int currentReadTime = 0;
+
+
 float INTERVAL = 3.2083333;
 
 int ROW_TIME = 16948;
@@ -85,6 +88,8 @@ int reading_points_default = 7;
 int ammountReadingPoints = 7; 
 int threshold_default   = 150;
 int lastDir = 0; 
+
+int [][] lastBits = new int[ammountReadingPoints][8];  
 
 /* Debug variables */
 boolean sendFakeData = false;

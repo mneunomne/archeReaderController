@@ -148,6 +148,22 @@ public class Gui {
     fy+=margin+5;
     text("last_direction: " + lastDir, margin,fy);
     fy+=margin+5;
+    text("currentReadTime: " + currentReadTime, margin,fy);
+    fy+=margin+5;
+    text("proportional time: " + float(currentReadTime)/ROW_TIME, margin,fy);
+    fy+=margin+5;
+    
+    int rectSize = 8;
+    int ry = fy;
+    for (int i = 0; i < ammountReadingPoints; i++) {
+      ry+=rectSize;
+      int rx = margin;
+      for (int j = 0; j < 8; j++) {
+        fill(lastBits[i][j]*255); 
+        rx+=rectSize;
+        rect(rx, ry, rectSize, rectSize);
+      }
+    }
   }
 
   // old
