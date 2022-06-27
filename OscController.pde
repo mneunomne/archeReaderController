@@ -28,6 +28,10 @@ class OscController {
 
   }
 
+  void sendRowData (int [] array) {
+
+  }
+
   /* Accumulated Data */
   void sendOscAccumulatedData (int [] data, int index) {
     OscMessage message = new OscMessage("/accumulated_data");
@@ -45,6 +49,6 @@ class OscController {
     message.add(decoder.getFinalAudio());
     //message.add(sample_rate);
     oscP5.send(message, remoteBroadcast);
-    // println("[OscController] send final_audio", Arrays.toString(decoder.getFinalAudio()));
+      // println("[OscController] send final_audio", Arrays.toString(decoder.getFinalAudio()));
   }
 }

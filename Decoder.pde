@@ -1,9 +1,10 @@
 public class Decoder {
   int cols=192;
   int rows=266;
-  int length = 51072;
+  int length = cols*rows;
   
   int [] bits = new int[length];
+
   String bString = "";
 
   ArrayList<ArrayList<Integer>> rowBytes = new ArrayList<ArrayList<Integer>>();
@@ -147,6 +148,7 @@ public class Decoder {
   }
 
   void endReading (boolean isInverted) {
+    int lastIndex = 0;
     for (int r = 0; r < rowBytes.size(); r++) {
       ArrayList<Integer> dataRow = rowBytes.get(r);
       if (isInverted) {
@@ -155,16 +157,27 @@ public class Decoder {
       float interval = float(dataRow.size())/cols;
       float j = 0;
       int index=(current_row_index + r)*cols; 
-      // println("[Decoder] endReading", index, interval, dataRow.size()); // FIX
+      println("[Decoder] endReading", index, interval, dataRow.size());
       for (int i = 0; i < cols; i++) { 
         int n = dataRow.get(floor(j));
         int bit = n > threshold ? 0 : 1;
         bits[index+i] = bit;
         j+=interval;
+        lastIndex=index+i;
       }
     }
+    // send accumulated data to Max/msp through OSC
+    oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex));
     decoderState = DECODER_IDLE;
   } 
+
+  int [] getAccumulatedData (int lastIndex) {
+    int [] accumulatedData = new int[lastIndex];
+    for (int i = 0; i < lastIndex; i++) {
+      accumulatedData[i] = bits[index];
+    }
+    return accumulatedData;
+  }
 
   int [] getFinalAudio () {
     return originalNumbers;
