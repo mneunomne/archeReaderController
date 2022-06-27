@@ -22,6 +22,9 @@ public class Decoder {
 
   ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
 
+  int startReadTime = 0;
+  int currentReadTime = 0;
+
   Decoder () {
     pg = createGraphics(width, height);
     //for (int i = 0; i < length; i++) bits[i] = random(100) > 50 ? 1 : 0;
@@ -77,8 +80,12 @@ public class Decoder {
       rowBytes.get(i).add(camValues[i]);
     }
 
+
+    currentReadTime=(startReadTime-millis());
+    float proportionalTime = currentReadTime/ROW_TIME;
+
     // send data to Max as array, not the arrayList 
-    oscController.sendLiveDataArray(camValues);
+    oscController.sendLiveDataArray(camValues, proportionalTime);
     gui.updateCharts(camValues);
 
     switch (decoderState) {
@@ -134,6 +141,7 @@ public class Decoder {
   }
 
   void startReadingRow () {
+    startReadTime = millis();
     for (int i = 0; i < ammountReadingPoints;i++) {
       rowBytes.get(i).clear();
     }
@@ -141,6 +149,7 @@ public class Decoder {
   }
 
   void startReadingRowInverted () {
+    startReadTime = millis()
     for (int i = 0; i < ammountReadingPoints;i++) {
       rowBytes.get(i).clear();
     }
@@ -155,6 +164,7 @@ public class Decoder {
         Collections.reverse(dataRow);
       }
       float interval = float(dataRow.size())/cols;
+      println("interval", interval);
       float j = 0;
       int index=(current_row_index + r)*cols; 
       println("[Decoder] endReading", index, interval, dataRow.size());
@@ -167,14 +177,14 @@ public class Decoder {
       }
     }
     // send accumulated data to Max/msp through OSC
-    oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex));
+    oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex), current_row_index);
     decoderState = DECODER_IDLE;
   } 
 
   int [] getAccumulatedData (int lastIndex) {
     int [] accumulatedData = new int[lastIndex];
     for (int i = 0; i < lastIndex; i++) {
-      accumulatedData[i] = bits[index];
+      accumulatedData[i] = bits[i];
     }
     return accumulatedData;
   }

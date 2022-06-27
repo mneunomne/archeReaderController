@@ -24,8 +24,13 @@ class OscController {
     // println("[OscController] send live_data", message);
   }
 
-  void sendLiveDataArray (int [] data) {
-
+  void sendLiveDataArray (int [] data, float perc) {
+    OscMessage message = new OscMessage("/live_data");
+    message.add(data);
+    OscMessage messageIndex = new OscMessage("/live_data_perc");
+    messageIndex.add(perc);
+    oscP5.send(message, remoteBroadcast);
+    oscP5.send(messageIndex, remoteBroadcast);
   }
 
   void sendRowData (int [] array) {

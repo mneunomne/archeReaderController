@@ -73,6 +73,10 @@ int small_steps = 250;
 int big_steps   = 8000;
 int current_row_index = 0;
 
+float INTERVAL = 3.2083333;
+
+int ROW_TIME = 16948;
+
 // ArrayList<Integer> currentRowIndexes = new ArrayList<Integer>(); 
 
 int small_steps_default = UNIT_STEPS;

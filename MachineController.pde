@@ -6,6 +6,8 @@ class MachineController {
   boolean isRunning;
   String lastMovement;
 
+  int timeStarted=0;
+
   MachineController(PApplet parent) {
     // null
     print("[MachineController] SerialList: ");
@@ -105,6 +107,7 @@ class MachineController {
   }
 
   void onMovementStart () {
+    timeStarted=millis();
     switch (macroState) {
       case READING_ROW:
       case READING_ROW_INVERSE:
@@ -123,6 +126,8 @@ class MachineController {
   }
 
   void onMovementEnd () {
+    int timeSpent = millis()-timeStarted;
+    println("timeSpent", timeSpent);
     switch (macroState) {
       case STOP_MACHINE:
       case RUNNING_WASD_COMMAND:
