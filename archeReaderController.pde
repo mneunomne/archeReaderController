@@ -39,7 +39,6 @@ static final int READING_ROW                = 3;
 static final int READING_ROW_INVERSE        = 4;
 static final int READING_PLATE              = 5;
 static final int STOP_MACHINE               = 6;
-static final int RETURNING_TOP              = 7;
 int macroState = 0;
 String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP"};
 
@@ -50,8 +49,9 @@ static final int RUNNING_ROW                = 2;
 static final int JUMPING_ROW                = 3;
 static final int RUNNING_UNIT               = 4;
 static final int RUNNING_WASD               = 5;
+static final int RETURNING_TOP              = 6;
 int machineState = 0;
-String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD"};
+String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP"};
 
 // Decoder States
 static final int DECODER_IDLE               = 0;
@@ -205,6 +205,10 @@ void wasd_command (char key) {
     case 'S': machineController.moveY(-big_steps); break;
     case 'D': machineController.moveX(-big_steps); break;
   }
+}
+
+void fake_data (boolean value) {
+  sendFakeData = value;
 }
 
 // wasd movement keys

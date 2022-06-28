@@ -1,9 +1,9 @@
 public class Decoder {
   int cols=192;
   int rows=266;
-  int length = cols*rows;
+  int total_length = cols*rows;
   
-  int [] bits = new int[length];
+  int [] bits = new int[total_length];
 
   String bString = "";
 
@@ -30,8 +30,8 @@ public class Decoder {
 
   Decoder () {
     pg = createGraphics(width, height);
-    //for (int i = 0; i < length; i++) bits[i] = random(100) > 50 ? 1 : 0;
-    for (int i = 0; i < length; i++) bits[i] = 0;
+    //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
+    for (int i = 0; i < total_length; i++) bits[i] = 0;
     pg.beginDraw();
     pg.background(100);
     pg.endDraw();
@@ -41,13 +41,12 @@ public class Decoder {
     for (int i = 0; i < originalNumbersJSON.size(); i++) {
       originalNumbers[i] = originalNumbersJSON.getInt(i);
     }
-
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
       rowBytes.add(rowNumbers);
     }
   }
-
+  
   void storeDataPoint () {
     char bit = currentLiveValue > threshold ? '0' : '1';
     bString = bString + bit;
@@ -82,7 +81,6 @@ public class Decoder {
     for (int i = 0; i < ammountReadingPoints; i++) {
       currentLiveValues.add(camValues[i]);
       rowBytes.get(i).add(camValues[i]);
-      accumulatedBytes.add(camValues[i]);
       booleanValues[i] = camValues[i] > threshold ? 0 : 1;
     }
 
@@ -92,17 +90,13 @@ public class Decoder {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentReadTime=(millis()-startReadTime);
-        float proportionalTime = currentReadTime/ROW_TIME;
-
-
-
+        float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
         int timePerUnit = floor(float(ROW_TIME)/ROW_STEPS);
         if (currentReadTime % timePerUnit == 0) {
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
-          
           // read bits!
           for (int i = 0; i < ammountReadingPoints; i++) {
             lastBits[i][lastBitsIndex] = booleanValues[i];
@@ -115,7 +109,6 @@ public class Decoder {
             lastBits = new int[ammountReadingPoints][8];
           }
         }
-
         // store data in rowBytes ArrayList
         for (int i = 0; i < ammountReadingPoints; i++) {
           rowBytes.get(i).add(camValues[i]);
@@ -137,7 +130,7 @@ public class Decoder {
     }
     oscController.sendLiveDataBytes(lastBytes);
   }
-
+  
   void sendTestData () {
     if (frameCount % 5 == 0) {
       if (current_row_index >= originalNumbers.length) {
@@ -151,7 +144,6 @@ public class Decoder {
       oscController.sendOscAccumulatedData(numbers, current_row_index);
     }
   }
-
   void display () {
     render_grid();
     noTint();
@@ -163,7 +155,7 @@ public class Decoder {
     pg.background(0, 0);
     int x = 0;
     int y = 0;
-    for (int i = 0; i < length; i++) {  
+    for (int i = 0; i < total_length; i++) {  
       pg.stroke(bits[i]*255, 55+bits[i]*200);
       pg.point(x, y);
       if (x > cols) {
@@ -208,17 +200,37 @@ public class Decoder {
       float j = 0;
       int index=(current_row_index + r)*cols; 
       println("[Decoder] endReading", index, interval, dataRow.size());
+      int bitIndex = 0;
+      String byteString = "";
       for (int i = 0; i < cols; i++) { 
         int n = dataRow.get(floor(j));
         int bit = n > threshold ? 0 : 1;
+        if (index+i >= total_length) {
+          break;
+        }
         bits[index+i] = bit;
         j+=interval;
         lastIndex=index+i;
+        byteString+=bit;
+        bitIndex++;
+        // every 8 bits ....
+        if (bitIndex == 8) {
+          int number = Integer.parseInt(byteString, 2);
+          accumulatedBytes.add(n);
+          byteString="";
+          bitIndex=0;
+        }
       }
     }
-    // send accumulated data to Max/msp through OSC
-    oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex), current_row_index);
-    decoderState = DECODER_IDLE;
+    println("sendFakeData", sendFakeData);
+    if (sendFakeData) {
+      // send fake
+      oscController.sendOscAccumulatedData(getFakeData(lastIndex), current_row_index/ammountReadingPoints);
+    } else {
+      // send accumulated data to Max/msp through OSC
+      oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex), current_row_index/ammountReadingPoints);
+    }
+    decoderState = DECODER_IDLE; 
   } 
 
   int [] getAccumulatedData (int lastIndex) {
@@ -227,6 +239,14 @@ public class Decoder {
       accumulatedData[i] = accumulatedBytes.get(i);
     }
     return accumulatedData;
+  }
+
+  int [] getFakeData (int lastIndex) {
+    int [] fakeData = new int[accumulatedBytes.size()];
+    for (int i = 0; i < fakeData.length; i++) {
+      fakeData[i] = originalNumbers[i];
+    }
+    return fakeData;
   }
 
   int [] getFinalAudio () {

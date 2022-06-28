@@ -43,7 +43,7 @@ class OscController {
   }
 
   void sendLiveDataBytes (int [] data) {
-    OscMessage message = new OscMessage("/data_bytes");
+    OscMessage message = new OscMessage("/data_byte");
     message.add(data);
     oscP5.send(message, remoteBroadcast);
   }
@@ -54,13 +54,14 @@ class OscController {
 
   /* Accumulated Data */
   void sendOscAccumulatedData (int [] data, int index) {
+
     OscMessage message = new OscMessage("/accumulated_data");
     message.add(data);
     OscMessage messageIndex = new OscMessage("/accumulated_index");
     messageIndex.add(index);
     oscP5.send(message, remoteBroadcast);
     oscP5.send(messageIndex, remoteBroadcast);
-    // println("[OscController] send accumulated_data", Arrays.toString(data));
+    println("[OscController] send accumulated_data", data.length, Arrays.toString(data));
   }
   
   /* Final Audio */

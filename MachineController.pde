@@ -52,8 +52,9 @@ class MachineController {
   }
 
   void returnToTop () {
+    println("returnToTop!");
     machineState = RETURNING_TOP;
-    moveY(UNIT_STEPS*current_row_index);
+    moveY(-UNIT_STEPS*current_row_index);
     current_row_index=0;
   }
 
@@ -131,7 +132,6 @@ class MachineController {
     switch (macroState) {
       case STOP_MACHINE:
       case RUNNING_WASD_COMMAND:
-      case RETURNING_TOP:
         // after these events, no reading is involved
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
@@ -160,7 +160,7 @@ class MachineController {
         // interpret signal
         decoder.endReading(true); // is inverted
         // jump to next row
-        if (current_row_index < PLATE_ROWS) {
+        if (current_row_index < PLATE_ROWS-1) {
           jumpRow();
         } else {
           returnToTop();
@@ -183,6 +183,13 @@ class MachineController {
           runRowInverse();
         }
         break;
+      case RETURNING_TOP:
+        if (lastDir < 0) {
+          runRow();
+        } else {
+          runRowInverse();
+        }
+        break; 
     }
   }
 }
