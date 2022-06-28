@@ -19,7 +19,7 @@ OscController oscController;
 int [] last_values = new int [100];
 
 /* GLOBALS */
-String MAX_ADDRESS = "10.10.48.52";
+String MAX_ADDRESS = "10.10.49.32";
 int MAX_PORT = 12000;
 
 int UNIT_STEPS = 88;
@@ -98,7 +98,7 @@ boolean sendFakeData = false;
 PFont myFont;
 
 void setup() {
-  size(800, 600);
+  size(900, 600);
 
   cam = new Camera(this);
   cam.init();

@@ -1,6 +1,9 @@
 public class Gui {
 
   Chart myChart;
+  Chart accumulatedChart;
+  Chart noiseChart;
+  Chart mergedChart;
   
   Chart [] dataCharts = new Chart[ammountReadingPoints];
 
@@ -105,6 +108,13 @@ public class Gui {
       .setValue(false)
       ;
     fy+= button_h+margin+10;
+    
+    cp5.addToggle("merge_data")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      .setValue(false)
+      ;
+    fy+= button_h+margin+10;
   }
 
   void chart () {
@@ -135,6 +145,40 @@ public class Gui {
       .setLabelVisible(true)
       ;
     y+=chart_h+margin+10;
+
+    chart_h=50;
+    accumulatedChart = cp5.addChart("accumulatedData")
+      .setPosition(margin, y)
+      .setSize(chart_w, chart_h)
+      .setRange(0, 255)
+      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+      .setStrokeWeight(1.5)
+      .setColorCaptionLabel(color(255))
+      ;
+    accumulatedChart.addDataSet("accumulatedData");
+    y+=chart_h+margin+10;
+    
+    noiseChart = cp5.addChart("noiseData")
+      .setPosition(margin, y)
+      .setSize(chart_w, chart_h)
+      .setRange(0, 1)
+      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+      .setStrokeWeight(1.5)
+      .setColorCaptionLabel(color(255))
+      ;
+    noiseChart.addDataSet("noiseData");
+    y+=chart_h+margin+10;
+    
+    mergedChart = cp5.addChart("mergedChart")
+      .setPosition(margin, y)
+      .setSize(chart_w, chart_h)
+      .setRange(0, 255)
+      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+      .setStrokeWeight(1.5)
+      .setColorCaptionLabel(color(255))
+      ;
+    mergedChart.addDataSet("mergedData");
+    y+=chart_h+margin+10;
   }
 
   Textlabel myTextlabelA;
@@ -142,26 +186,27 @@ public class Gui {
 
   void display () {
     fill(255);
-    int fy = y + margin;
-    text("timeElapsed: " + millis()/1000, margin,fy);
+    int fy = margin * 2;
+    int fx = margin*3+chart_w;
+    text("timeElapsed: " + millis()/1000, fx,fy);
     fy+=margin+5;
-    text("macroState: " + macroStates[macroState], margin,fy);
+    text("macroState: " + macroStates[macroState], fx,fy);
     fy+=margin+5;
-    text("machineState: " + machineStates[machineState], margin,fy);
+    text("machineState: " + machineStates[machineState], fx,fy);
     fy+=margin+5;
-    text("decoderState: " + decoderStates[decoderState], margin,fy);
+    text("decoderState: " + decoderStates[decoderState], fx,fy);
     fy+=margin+5;
-    text("current_row_index: " + current_row_index, margin,fy);
+    text("current_row_index: " + current_row_index, fx,fy);
     fy+=margin+5;
-    text("last_direction: " + lastDir, margin,fy);
+    text("last_direction: " + lastDir, fx,fy);
     fy+=margin+5;
-    text("currentReadTime: " + currentReadTime, margin,fy);
+    text("currentReadTime: " + currentReadTime, fx,fy);
     fy+=margin+5;
-    text("proportional time: " + float(currentReadTime)/ROW_TIME, margin,fy);
+    text("proportional time: " + float(currentReadTime)/ROW_TIME, fx,fy);
     fy+=margin+5;
     
     int rectSize = 8;
-    int ry = fy;
+    int ry = y + margin;
     for (int i = 0; i < ammountReadingPoints; i++) {
       ry+=rectSize;
       int rx = margin;
@@ -187,5 +232,17 @@ public class Gui {
     for (int i = 0; i < values.length; i++) {
       dataCharts[i].push("incoming_"+i, values[i]);
     }
+  }
+
+  void updateAccumulatedGraph(float [] samples) {
+    accumulatedChart.setData("accumulatedData", samples);
+  }
+  
+  void updateNoiseGraph(float [] samples) {
+    noiseChart.setData("noiseData", samples);
+  }
+  
+  void updateMergedGraph(float [] samples) {
+    mergedChart.setData("mergedData", samples);
   }
 }

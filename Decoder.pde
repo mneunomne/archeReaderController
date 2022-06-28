@@ -222,14 +222,27 @@ public class Decoder {
         }
       }
     }
-    println("sendFakeData", sendFakeData);
+    // get data 
+    int [] realData = getAccumulatedData(lastIndex);
+    int [] fakeData = getFakeData(lastIndex);
+    float [] noiseArray = generateNoiseArray();
+    int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
+    
+    // update GUI
+    gui.updateAccumulatedGraph(toFloatArray(realData));
+    gui.updateNoiseGraph(noiseArray);
+    gui.updateMergedGraph(toFloatArray(mergedArray));
+    
+    int [] dataPayload;
     if (sendFakeData) {
       // send fake
-      oscController.sendOscAccumulatedData(getFakeData(lastIndex), current_row_index/ammountReadingPoints);
+      dataPayload = fakeData;
     } else {
       // send accumulated data to Max/msp through OSC
-      oscController.sendOscAccumulatedData(getAccumulatedData(lastIndex), current_row_index/ammountReadingPoints);
+      dataPayload = realData;
     }
+    oscController.sendOscAccumulatedData(dataPayload, current_row_index/ammountReadingPoints);
+    
     decoderState = DECODER_IDLE; 
   } 
 
@@ -242,7 +255,7 @@ public class Decoder {
   }
 
   int [] getFakeData (int lastIndex) {
-    int [] fakeData = new int[accumulatedBytes.size()];
+    int [] fakeData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
     for (int i = 0; i < fakeData.length; i++) {
       fakeData[i] = originalNumbers[i];
     }
@@ -253,7 +266,37 @@ public class Decoder {
     return originalNumbers;
   }
 
+  float [] generateNoiseArray () {
+    float noiseScale = 0.02;
+    float [] noiseArray = new float[accumulatedBytes.size()];
+    for (int i=0; i < noiseArray.length; i++) {
+      float noiseVal = noise((i)*noiseScale, 100*noiseScale);
+      noiseArray[i] = noiseVal;
+    }
+    return noiseArray;
+  }
+
+  int [] getMergedDataArray (int [] real_data, int [] fake_data, float [] noise_array) {
+    int [] mergedData = new int[accumulatedBytes.size()];
+    for (int i = 0; i < mergedData.length; i++) {
+      float real_val = real_data[i] * (noise_array[i]);
+      float fake_val = fake_data[i] * (1 - noise_array[i]);
+      mergedData[i] = floor(real_val + fake_val);
+    }
+    return mergedData;
+  }
+
   int getLiveValue () {
     return currentLiveValue;
   }
+}
+
+float[] toFloatArray(int[] arr) {
+  if (arr == null) return null;
+  int n = arr.length;
+  float[] ret = new float[n];
+  for (int i = 0; i < n; i++) {
+    ret[i] = (float)arr[i];
+  }
+  return ret;
 }
