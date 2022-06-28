@@ -126,6 +126,7 @@ public class Decoder {
       for (int b = 0; b < 8; b++) {
         byteString += String.valueOf(lastBits[i][b]);
       }
+      println("byteString", byteString);
       lastBytes[i] = Integer.parseInt(byteString, 2);
     }
     oscController.sendLiveDataBytes(lastBytes);
@@ -216,7 +217,8 @@ public class Decoder {
         // every 8 bits ....
         if (bitIndex == 8) {
           int number = Integer.parseInt(byteString, 2);
-          accumulatedBytes.add(n);
+          println("byteString", byteString);
+          accumulatedBytes.add(number);
           byteString="";
           bitIndex=0;
         }
@@ -267,11 +269,11 @@ public class Decoder {
   }
 
   float [] generateNoiseArray () {
-    float noiseScale = 0.02;
+    //noiseScale = 0.02;
     float [] noiseArray = new float[accumulatedBytes.size()];
     for (int i=0; i < noiseArray.length; i++) {
-      float noiseVal = noise((i)*noiseScale, 100*noiseScale);
-      noiseArray[i] = noiseVal;
+      float noiseVal = noise((i)*noiseSteps, noiseSteps);
+      noiseArray[i] = ((noiseVal * noiseScale) + 1)/2;
     }
     return noiseArray;
   }

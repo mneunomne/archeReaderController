@@ -171,10 +171,9 @@ public class Gui {
       .setPosition(margin+chart_w,y)
       .setSize(cp_height, chart_h)
       .setValue(noise_step_default)
-      .setRange(0.001, 0.2)
+      .setRange(0.0001, 0.1)
       .setLabelVisible(true)
       ;
-    y+=chart_h+margin+10;
     y+=chart_h+margin+10;
     
     mergedChart = cp5.addChart("mergedChart")
@@ -194,7 +193,6 @@ public class Gui {
       .setRange(0, 1)
       .setLabelVisible(true)
       ;
-    y+=chart_h+margin+10;
     y+=chart_h+margin+10;
   }
 

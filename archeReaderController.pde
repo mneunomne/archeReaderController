@@ -90,7 +90,9 @@ int ammountReadingPoints = 7;
 int threshold_default   = 150;
 int lastDir = 0; 
 float noise_scale_default = 0.5;
-float noise_step_default = 0.02;
+float noise_step_default = 0.005;
+float noiseScale = noise_scale_default;
+float noiseSteps = noise_step_default;
 
 int [][] lastBits = new int[ammountReadingPoints][8];  
 int [] lastBytes = new int [ammountReadingPoints];
