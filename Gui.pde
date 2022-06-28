@@ -62,7 +62,6 @@ public class Gui {
     // Group bangButtons = cp5.addGroup("bangButtons").setPosition(width-100-margin,margin).setWidth(100);
     int fx = width - 100 - margin;
     int fy = margin; 
-
     int button_w = 30;
     int button_h = 15;
     
@@ -167,6 +166,15 @@ public class Gui {
       .setColorCaptionLabel(color(255))
       ;
     noiseChart.addDataSet("noiseData");
+    // noise scale slider
+    cp5.addSlider("noise_step_slider")
+      .setPosition(margin+chart_w,y)
+      .setSize(cp_height, chart_h)
+      .setValue(noise_step_default)
+      .setRange(0.001, 0.2)
+      .setLabelVisible(true)
+      ;
+    y+=chart_h+margin+10;
     y+=chart_h+margin+10;
     
     mergedChart = cp5.addChart("mergedChart")
@@ -178,6 +186,15 @@ public class Gui {
       .setColorCaptionLabel(color(255))
       ;
     mergedChart.addDataSet("mergedData");
+    // noise scale slider
+    cp5.addSlider("noise_scale_slider")
+      .setPosition(margin+chart_w,y)
+      .setSize(cp_height, chart_h)
+      .setValue(noise_scale_default)
+      .setRange(0, 1)
+      .setLabelVisible(true)
+      ;
+    y+=chart_h+margin+10;
     y+=chart_h+margin+10;
   }
 

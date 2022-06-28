@@ -19,7 +19,8 @@ OscController oscController;
 int [] last_values = new int [100];
 
 /* GLOBALS */
-String MAX_ADDRESS = "10.10.49.32";
+//"10.10.49.32";
+String MAX_ADDRESS = "10.10.48.52";
 int MAX_PORT = 12000;
 
 int UNIT_STEPS = 88;
@@ -88,6 +89,8 @@ int reading_points_default = 7;
 int ammountReadingPoints = 7; 
 int threshold_default   = 150;
 int lastDir = 0; 
+float noise_scale_default = 0.5;
+float noise_step_default = 0.02;
 
 int [][] lastBits = new int[ammountReadingPoints][8];  
 int [] lastBytes = new int [ammountReadingPoints];
@@ -166,6 +169,14 @@ void big_steps_slider (float value) {
 void reading_points_slider (float value) {
   ammountReadingPoints = int(value);
 }
+void noise_scale_slider (float value) {
+  noiseScale = value;
+}
+
+void noise_step_slider (float value) {
+  noiseSteps = value;
+}
+
 
 /*
   ControlP5 Bang Buttons

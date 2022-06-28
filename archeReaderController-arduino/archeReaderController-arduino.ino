@@ -3,7 +3,7 @@
 
 #define STEP_PIN_Y 3
 #define DIR_PIN_Y 6
-// 88 -> 1mm
+
 #define ENA_PIN 8
 
 #define microX1 1
