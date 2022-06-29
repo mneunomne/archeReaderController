@@ -6,8 +6,6 @@ public class Camera {
   int capturePosX, capturePosY;
   int w,h;
 
-  int unitPixelSize = 14;
-
   int [] capturedValues;
 
   Camera(PApplet _parent) {
@@ -27,7 +25,7 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[0]);
+      video = new Capture(parent, cameras[1]);
       video.start();
     }
     w = video.width;
@@ -35,7 +33,7 @@ public class Camera {
     capturePosX = w/2-captureSize/2;
     capturePosY = h/2-captureSize/2;
     println("[Camera] video size", w, h);
-  }
+  }  
 
   void update () {
     setCenterValues(ammountReadingPoints);

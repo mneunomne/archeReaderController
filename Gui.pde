@@ -18,7 +18,7 @@ public class Gui {
   
   int margin = MARGIN;
   int y = margin; 
-
+  
   Gui (ControlP5 _cp5) {
     cp5 = _cp5;
   }
@@ -46,6 +46,13 @@ public class Gui {
       .setSize(cp_width, cp_height)
       .setValue(big_steps_default)
       .setRange(1000, 25000)
+      ;
+    y+=cp_height+margin;
+    cp5.addSlider("unit_size")
+      .setPosition(margin,y)
+      .setSize(cp_width, cp_height)
+      .setValue(unit_size_default)
+      .setRange(1, 20)
       ;
     y+=cp_height+margin;
     cp5.addSlider("reading_points_slider")
@@ -203,6 +210,8 @@ public class Gui {
     fill(255);
     int fy = margin * 2;
     int fx = margin*3+chart_w;
+    text("frameRate: " + frameRate, fx,fy);
+    fy+=margin+5;
     text("timeElapsed: " + millis()/1000, fx,fy);
     fy+=margin+5;
     text("macroState: " + macroStates[macroState], fx,fy);
@@ -235,13 +244,6 @@ public class Gui {
       rect(rx, ry, rectSize, rectSize);
     }
   }
-
-  // old
-  /*
-  void updateChart (float value) {
-    myChart.push("incoming", value);
-  }
-  */
 
   void updateCharts (int [] values) {
     for (int i = 0; i < values.length; i++) {

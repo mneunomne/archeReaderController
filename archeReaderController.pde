@@ -93,7 +93,9 @@ float noise_scale_default = 0.5;
 float noise_step_default = 0.005;
 float noiseScale = noise_scale_default;
 float noiseSteps = noise_step_default;
-
+int unit_size_default = 14;
+int unitPixelSize = unit_size_default;
+  
 int [][] lastBits = new int[ammountReadingPoints][8];  
 int [] lastBytes = new int [ammountReadingPoints];
 
@@ -177,6 +179,10 @@ void noise_scale_slider (float value) {
 
 void noise_step_slider (float value) {
   noiseSteps = value;
+}
+
+void unit_size (float value) {
+ unitPixelSize = int(value);  
 }
 
 

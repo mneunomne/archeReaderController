@@ -74,21 +74,22 @@ public class Decoder {
   }
 
   void update () {    
+    //if (true) return;
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
     int [] booleanValues  = new int [ammountReadingPoints];
-    currentLiveValues.clear();
-    for (int i = 0; i < ammountReadingPoints; i++) {
-      currentLiveValues.add(camValues[i]);
-      rowBytes.get(i).add(camValues[i]);
-      booleanValues[i] = camValues[i] > threshold ? 0 : 1;
-    }
 
-    gui.updateCharts(camValues);
+    //gui.updateCharts(camValues);
 
     switch (decoderState) {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
+        currentLiveValues.clear();
+        for (int i = 0; i < ammountReadingPoints; i++) {
+          currentLiveValues.add(camValues[i]);
+          rowBytes.get(i).add(camValues[i]);
+          booleanValues[i] = camValues[i] > threshold ? 0 : 1;
+        }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
@@ -126,7 +127,6 @@ public class Decoder {
       for (int b = 0; b < 8; b++) {
         byteString += String.valueOf(lastBits[i][b]);
       }
-      println("byteString", byteString);
       lastBytes[i] = Integer.parseInt(byteString, 2);
     }
     oscController.sendLiveDataBytes(lastBytes);
@@ -146,7 +146,7 @@ public class Decoder {
     }
   }
   void display () {
-    render_grid();
+    //render_grid();
     noTint();
     image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
   }
@@ -197,7 +197,6 @@ public class Decoder {
         Collections.reverse(dataRow);
       }
       float interval = float(dataRow.size())/cols;
-      println("interval", interval);
       float j = 0;
       int index=(current_row_index + r)*cols; 
       println("[Decoder] endReading", index, interval, dataRow.size());
@@ -223,6 +222,7 @@ public class Decoder {
           bitIndex=0;
         }
       }
+      render_grid();
     }
     // get data 
     int [] realData = getAccumulatedData(lastIndex);

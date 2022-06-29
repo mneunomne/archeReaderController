@@ -12,7 +12,7 @@ class MachineController {
     // null
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
-    String portName = Serial.list()[6]; //change the 0 to a 1 or 2 etc. to match your port
+    String portName = Serial.list()[7]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
   }
 
