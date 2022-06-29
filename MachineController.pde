@@ -8,12 +8,29 @@ class MachineController {
 
   int timeStarted=0;
 
+  int nextInterval=500; // in millis
+
+  int readingRowInterval = 5000;
+
+  int timeFinnishedRow=0;
+
+  boolean rowDelay = false; 
+
   MachineController(PApplet parent) {
     // null
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
     String portName = Serial.list()[7]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
+  }
+
+  void update () {
+    if (rowDelay) {
+      if (millis() >= timeFinnishedRow+readingRowInterval) {
+        jumpRow();
+        rowDelay=false;
+      }
+    }
   }
 
   void startReading () {
@@ -128,7 +145,7 @@ class MachineController {
 
   void onMovementEnd () {
     int timeSpent = millis()-timeStarted;
-    println("timeSpent", timeSpent);
+    timeFinnishedRow = millis();
     switch (macroState) {
       case STOP_MACHINE:
       case RUNNING_WASD_COMMAND:
@@ -161,17 +178,19 @@ class MachineController {
         decoder.endReading(true); // is inverted
         // jump to next row
         if (current_row_index < PLATE_ROWS-1) {
-          jumpRow();
+          //jumpRow();
+          rowDelay=true;
         } else {
           returnToTop();
-        }  
+        }
         break;
       case RUNNING_ROW:
         // interpret signal
         decoder.endReading(false); // is inverted
         // jump to next row
         if (current_row_index < PLATE_ROWS) {
-          jumpRow();
+          //jumpRow();
+          rowDelay=true;
         } else {
           returnToTop();
         }
