@@ -55,6 +55,14 @@ public class Gui {
       .setRange(1, 20)
       ;
     y+=cp_height+margin;
+    cp5.addSlider("reading_row_interval_slider")
+      .setPosition(margin,y)
+      .setSize(cp_width, cp_height)
+      .setValue(reading_row_interval_default)
+      .setRange(1, 20)
+      ;
+    y+=cp_height+margin;
+    /*
     cp5.addSlider("reading_points_slider")
       .setPosition(margin,y)
       .setSize(cp_width, cp_height)
@@ -63,6 +71,7 @@ public class Gui {
       .setRange(1, 7)
       ;
     y+=cp_height+margin;
+    */
   }
 
   void buttons () {

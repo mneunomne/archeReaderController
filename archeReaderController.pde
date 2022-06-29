@@ -95,7 +95,10 @@ float noiseScale = noise_scale_default;
 float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
-  
+
+int reading_row_interval_default = 5000;
+int reading_row_interval = reading_row_interval_default;
+
 int [][] lastBits = new int[ammountReadingPoints][8];  
 int [] lastBytes = new int [ammountReadingPoints];
 
@@ -135,6 +138,7 @@ void draw() {
 
   // constantly listening to events from arduino
   machineController.listenToSerialEvents();
+  machineController.update();
 
   // display camera in interface
   cam.update();
@@ -183,6 +187,10 @@ void noise_step_slider (float value) {
 
 void unit_size (float value) {
  unitPixelSize = int(value);  
+}
+
+void reading_row_interval_slider (float value) {
+  reading_row_interval = int(value);
 }
 
 
