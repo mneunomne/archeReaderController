@@ -10,7 +10,7 @@ class OscController {
     oscP5 = new OscP5(this,12000);
     remoteBroadcast = new NetAddress(MAX_ADDRESS, MAX_PORT);
   }
-  
+
   // OLD - not used
   void update () {
     sendOscLiveData();
@@ -62,7 +62,7 @@ class OscController {
     messageIndex.add(index);
     oscP5.send(message, remoteBroadcast);
     oscP5.send(messageIndex, remoteBroadcast);
-    println("[OscController] send accumulated_data", data.length, Arrays.toString(data));
+    //println("[OscController] send accumulated_data", data.length, Arrays.toString(data));
   }
   
   /* Final Audio */

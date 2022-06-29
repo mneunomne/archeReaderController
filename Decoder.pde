@@ -28,6 +28,8 @@ public class Decoder {
 
   int startReadTime = 0;
 
+  int lastUnitReadTime = 0;
+
   Decoder () {
     pg = createGraphics(width, height);
     //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
@@ -99,8 +101,9 @@ public class Decoder {
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
-        int timePerUnit = floor(float(ROW_TIME)/ROW_STEPS);
-        if (currentReadTime % timePerUnit == 0) {
+        int timePerUnit = floor(float(ROW_TIME)/PLATE_COLS);
+        if (millis() - timePerUnit > lastUnitReadTime) {
+          lastUnitReadTime=millis();
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
@@ -121,9 +124,6 @@ public class Decoder {
           rowBytes.get(i).add(camValues[i]);
         }
         break;
-      case SENDING_FAKE_DATA:
-        sendTestData();
-        break;
     }
   }
 
@@ -137,25 +137,13 @@ public class Decoder {
       int byteNumber = Integer.parseInt(byteString, 2);
       lastBytes[i] = byteNumber;
       lastRowBytes.get(i).add(byteNumber);
+      println("lastRowBytes.get(i)", lastRowBytes.get(i).size());
     }
     gui.updateCharts(lastBytes);
     //gui.updateLastRowBytesGraph()
     oscController.sendLiveDataBytes(lastBytes);
   }
   
-  void sendTestData () {
-    if (frameCount % 5 == 0) {
-      if (current_row_index >= originalNumbers.length) {
-        current_row_index = 0;
-      }
-      current_row_index++;
-      int [] numbers = new int [current_row_index];
-      for (int i = 0; i < current_row_index; i++) {
-        numbers[i] = originalNumbers[i];
-      }
-      oscController.sendOscAccumulatedData(numbers, current_row_index);
-    }
-  }
   void display () {
     //render_grid();
     noTint();
@@ -185,18 +173,21 @@ public class Decoder {
       accumulatedBytes.clear();
     }
     startReadTime = millis();
-    for (int i = 0; i < ammountReadingPoints;i++) {
-      rowBytes.get(i).clear();
-    }
+    clearLastRows();
     decoderState = READING_ROW_DATA;
   }
 
   void startReadingRowInverted () {
     startReadTime = millis();
+    clearLastRows();
+    decoderState = READING_ROW_DATA_INVERTED;
+  }
+
+  void clearLastRows () {
     for (int i = 0; i < ammountReadingPoints;i++) {
       rowBytes.get(i).clear();
+      lastRowBytes.get(i).clear();
     }
-    decoderState = READING_ROW_DATA_INVERTED;
   }
 
   void endReading (boolean isInverted) {
@@ -211,7 +202,7 @@ public class Decoder {
       println("[Decoder] endReading", index, dataRow.size());
       for (int i = 0; i < PLATE_COLS; i++) { 
         if (index+i >= total_length) {
-          break;
+          break; // avoid last line to break because it is not complete
         }
         int number = dataRow.get(i);
         accumulatedBytes.add(number);
@@ -219,8 +210,8 @@ public class Decoder {
       render_grid();
     }
     // get data 
-    int [] realData = getAccumulatedData(lastIndex);
-    int [] fakeData = getFakeData(lastIndex);
+    int [] realData = getAccumulatedData();
+    int [] fakeData = getFakeData();
     float [] noiseArray = generateNoiseArray();
     int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
     
@@ -242,7 +233,7 @@ public class Decoder {
     decoderState = DECODER_IDLE; 
   } 
 
-  int [] getAccumulatedData (int lastIndex) {
+  int [] getAccumulatedData () {
     int [] accumulatedData = new int[accumulatedBytes.size()];
     for (int i = 0; i < accumulatedBytes.size(); i++) {
       accumulatedData[i] = accumulatedBytes.get(i);
@@ -250,7 +241,7 @@ public class Decoder {
     return accumulatedData;
   }
 
-  int [] getFakeData (int lastIndex) {
+  int [] getFakeData () {
     int [] fakeData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
     for (int i = 0; i < fakeData.length; i++) {
       fakeData[i] = originalNumbers[i];

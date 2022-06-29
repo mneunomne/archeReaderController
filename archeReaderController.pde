@@ -20,7 +20,7 @@ int [] last_values = new int [100];
 
 /* GLOBALS */
 //"10.10.49.32";
-String MAX_ADDRESS = "10.10.48.52";
+String MAX_ADDRESS = "10.10.49.32";//"10.10.48.52";
 int MAX_PORT = 12000;
 
 int UNIT_STEPS = 88;
