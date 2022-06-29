@@ -16,11 +16,13 @@ class MachineController {
 
   boolean rowDelay = false; 
 
+  int portIndex = 6;
+
   MachineController(PApplet parent) {
     // null
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
-    String portName = Serial.list()[7]; //change the 0 to a 1 or 2 etc. to match your port
+    String portName = Serial.list()[portIndex]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
   }
 

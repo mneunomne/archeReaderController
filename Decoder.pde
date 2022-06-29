@@ -1,7 +1,5 @@
 public class Decoder {
-  int cols=192;
-  int rows=266;
-  int total_length = cols*rows;
+  int total_length = PLATE_COLS*PLATE_ROWS;
   
   int [] bits = new int[total_length];
 
@@ -11,8 +9,10 @@ public class Decoder {
   
   ArrayList<Integer> accumulatedBytes = new ArrayList<Integer>();
 
-  int grid_width=cols;
-  int grid_height=rows;
+  ArrayList<ArrayList<Integer>> lastRowBytes = new ArrayList<ArrayList<Integer>>();
+
+  int grid_width=PLATE_COLS;
+  int grid_height=PLATE_ROWS;
 
   int lastBitsIndex = 0;
 
@@ -44,9 +44,11 @@ public class Decoder {
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
       rowBytes.add(rowNumbers);
+      lastRowBytes.add(rowNumbers);
     }
   }
-  
+
+  /*
   void storeDataPoint () {
     char bit = currentLiveValue > threshold ? '0' : '1';
     bString = bString + bit;
@@ -72,6 +74,7 @@ public class Decoder {
     }
     return values;
   }
+  */
 
   void update () {    
     //if (true) return;
@@ -122,13 +125,17 @@ public class Decoder {
   }
 
   void processLastBits () {
+    //ArrayList<Integer> lastBytesArray =  new ArrayList<Integer>(); 
     for (int i = 0; i < ammountReadingPoints; i++) {
       String byteString = "";
       for (int b = 0; b < 8; b++) {
         byteString += String.valueOf(lastBits[i][b]);
       }
-      lastBytes[i] = Integer.parseInt(byteString, 2);
+      int byteNumber = Integer.parseInt(byteString, 2);
+      lastBytes[i] = byteNumber;
+      lastRowBytes.get(i).add(byteNumber);
     }
+    //gui.updateLastRowBytesGraph()
     oscController.sendLiveDataBytes(lastBytes);
   }
   
@@ -159,7 +166,7 @@ public class Decoder {
     for (int i = 0; i < total_length; i++) {  
       pg.stroke(bits[i]*255, 55+bits[i]*200);
       pg.point(x, y);
-      if (x > cols) {
+      if (x > PLATE_COLS) {
         x=0;
         y++;
       } else {
@@ -191,36 +198,19 @@ public class Decoder {
   void endReading (boolean isInverted) {
     currentReadTime=ROW_TIME;
     int lastIndex = 0;
-    for (int r = 0; r < rowBytes.size(); r++) {
-      ArrayList<Integer> dataRow = rowBytes.get(r);
+    for (int r = 0; r < lastRowBytes.size(); r++) {
+      ArrayList<Integer> dataRow = lastRowBytes.get(r);
       if (isInverted) {
         Collections.reverse(dataRow);
       }
-      float interval = float(dataRow.size())/cols;
-      float j = 0;
-      int index=(current_row_index + r)*cols; 
-      println("[Decoder] endReading", index, interval, dataRow.size());
-      int bitIndex = 0;
-      String byteString = "";
-      for (int i = 0; i < cols; i++) { 
-        int n = dataRow.get(floor(j));
-        int bit = n > threshold ? 0 : 1;
+      int index=(current_row_index + r)*PLATE_COLS; 
+      println("[Decoder] endReading", index, dataRow.size());
+      for (int i = 0; i < PLATE_COLS; i++) { 
         if (index+i >= total_length) {
           break;
         }
-        bits[index+i] = bit;
-        j+=interval;
-        lastIndex=index+i;
-        byteString+=bit;
-        bitIndex++;
-        // every 8 bits ....
-        if (bitIndex == 8) {
-          int number = Integer.parseInt(byteString, 2);
-          println("byteString", byteString);
-          accumulatedBytes.add(number);
-          byteString="";
-          bitIndex=0;
-        }
+        int number = dataRow.get(i);
+        accumulatedBytes.add(number);
       }
       render_grid();
     }

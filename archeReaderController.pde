@@ -160,6 +160,7 @@ void draw() {
 /*
   ControlP5 listeners
 */
+
 void threshold_slider (float value) {
   threshold = floor(value);
 }
@@ -250,8 +251,5 @@ void keyPressed() {
     case 'A': 
     case 'S': 
     case 'D': wasd_command(key); break;
-    /* end movements */
-    case 'r': decoder.storeDataPoint(); break;
-    // case 'f': oscController.sendFinalAudio(); break;
   }
 }

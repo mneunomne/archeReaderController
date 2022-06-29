@@ -10,12 +10,13 @@ class OscController {
     oscP5 = new OscP5(this,12000);
     remoteBroadcast = new NetAddress(MAX_ADDRESS, MAX_PORT);
   }
-
+  
+  // OLD - not used
   void update () {
     sendOscLiveData();
   }
 
-  /* LIVE Data */
+  /* LIVE Data OLD */
   void sendOscLiveData () {
     OscMessage message = new OscMessage("/camera_data");
     int liveData = decoder.getLiveValue();
