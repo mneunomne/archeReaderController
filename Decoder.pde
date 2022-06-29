@@ -85,6 +85,9 @@ public class Decoder {
     //gui.updateCharts(camValues);
 
     switch (decoderState) {
+      case DECODER_IDLE:
+        gui.updateCharts(cam.getCenterValues());
+        break;
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentLiveValues.clear();
@@ -135,6 +138,7 @@ public class Decoder {
       lastBytes[i] = byteNumber;
       lastRowBytes.get(i).add(byteNumber);
     }
+    gui.updateCharts(lastBytes);
     //gui.updateLastRowBytesGraph()
     oscController.sendLiveDataBytes(lastBytes);
   }

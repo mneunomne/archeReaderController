@@ -147,7 +147,6 @@ void draw() {
   // update gui chart with the value from the camera 
   // gui.updateChart(currentCameraValue);
   
-  gui.updateCharts(cam.getCenterValues());
   gui.display();
 
   // display decoding interface
