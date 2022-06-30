@@ -11,10 +11,14 @@ public class Decoder {
 
   ArrayList<ArrayList<Integer>> lastRowBytes = new ArrayList<ArrayList<Integer>>();
 
+  int lastIndex = 0;
+
   int grid_width=PLATE_COLS;
   int grid_height=PLATE_ROWS;
 
   int lastBitsIndex = 0;
+
+  boolean startedTimer = false;
 
   PGraphics pg;
 
@@ -29,6 +33,8 @@ public class Decoder {
   int startReadTime = 0;
 
   int lastUnitReadTime = 0;
+
+  int timePerUnit = floor(float(ROW_TIME)/PLATE_COLS);
 
   Decoder () {
     pg = createGraphics(width, height);
@@ -45,7 +51,6 @@ public class Decoder {
     }
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
-      rowBytes.add(rowNumbers);
       lastRowBytes.add(rowNumbers);
     }
   }
@@ -78,32 +83,40 @@ public class Decoder {
   }
   */
 
+  int col_index=0;
+  int byte_index=0;
   void update () {    
+    if (!startedTimer) {
+      startReadTime = millis();
+      startedTimer=true;
+    }
     //if (true) return;
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
     int [] booleanValues  = new int [ammountReadingPoints];
-
     //gui.updateCharts(camValues);
-
     switch (decoderState) {
       case DECODER_IDLE:
-        gui.updateCharts(cam.getCenterValues());
+        // gui.updateCharts(cam.getCenterValues());
         break;
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentLiveValues.clear();
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
-          rowBytes.get(i).add(camValues[i]);
           booleanValues[i] = camValues[i] > threshold ? 0 : 1;
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
-        int timePerUnit = floor(float(ROW_TIME)/PLATE_COLS);
-        if (millis() - timePerUnit > lastUnitReadTime) {
+        
+        //println("timePerUnit", timePerUnit);
+        int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
+        if (millis() - lastUnitReadTime >= realTimePerUnit) {
+          // println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
+          col_index++;
           lastUnitReadTime=millis();
+          
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
@@ -113,15 +126,13 @@ public class Decoder {
           }
           lastBitsIndex++;
           if (lastBitsIndex == 8) { // every 8 bits...
+            //println("byte_index", byte_index);
+            byte_index++;
             lastBitsIndex=0;
             processLastBits();
             // clear last bits
             lastBits = new int[ammountReadingPoints][8];
           }
-        }
-        // store data in rowBytes ArrayList
-        for (int i = 0; i < ammountReadingPoints; i++) {
-          rowBytes.get(i).add(camValues[i]);
         }
         break;
     }
@@ -137,7 +148,6 @@ public class Decoder {
       int byteNumber = Integer.parseInt(byteString, 2);
       lastBytes[i] = byteNumber;
       lastRowBytes.get(i).add(byteNumber);
-      println("lastRowBytes.get(i)", lastRowBytes.get(i).size());
     }
     gui.updateCharts(lastBytes);
     //gui.updateLastRowBytesGraph()
@@ -169,39 +179,41 @@ public class Decoder {
   }
 
   void startReadingRow () {
-    if (current_row_index == 0) {
-      accumulatedBytes.clear();
-    }
-    startReadTime = millis();
     clearLastRows();
+    println("startReadingRow", col_index, byte_index);
     decoderState = READING_ROW_DATA;
   }
 
   void startReadingRowInverted () {
-    startReadTime = millis();
     clearLastRows();
+    println("startReadingRowInverted", col_index, byte_index);
     decoderState = READING_ROW_DATA_INVERTED;
   }
 
   void clearLastRows () {
+    if (current_row_index == 0) {
+      accumulatedBytes.clear();
+    }
+    startedTimer=false;
+    col_index=0;
+    byte_index=0;
     for (int i = 0; i < ammountReadingPoints;i++) {
-      rowBytes.get(i).clear();
       lastRowBytes.get(i).clear();
     }
   }
 
   void endReading (boolean isInverted) {
+    println("currentReadTime", currentReadTime);
     currentReadTime=ROW_TIME;
-    int lastIndex = 0;
     for (int r = 0; r < lastRowBytes.size(); r++) {
       ArrayList<Integer> dataRow = lastRowBytes.get(r);
       if (isInverted) {
         Collections.reverse(dataRow);
       }
-      int index=(current_row_index + r)*PLATE_COLS; 
-      println("[Decoder] endReading", index, dataRow.size());
-      for (int i = 0; i < PLATE_COLS; i++) { 
-        if (index+i >= total_length) {
+      println("[Decoder] endReading", lastIndex, dataRow.size());
+      for (int i = 0; i < dataRow.size(); i++) { 
+        lastIndex++; 
+        if (lastIndex >= total_length) {
           break; // avoid last line to break because it is not complete
         }
         int number = dataRow.get(i);
@@ -216,9 +228,9 @@ public class Decoder {
     int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
     
     // update GUI
-    gui.updateAccumulatedGraph(toFloatArray(realData));
-    gui.updateNoiseGraph(noiseArray);
-    gui.updateMergedGraph(toFloatArray(mergedArray));
+    // gui.updateAccumulatedGraph(toFloatArray(realData));
+    // gui.updateNoiseGraph(noiseArray);
+    //gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
     if (sendFakeData) {
