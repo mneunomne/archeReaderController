@@ -6,6 +6,8 @@ public class Decoder {
   String bString = "";
 
   ArrayList<ArrayList<Integer>> rowBytes = new ArrayList<ArrayList<Integer>>();
+
+  ArrayList<ArrayList<Integer>> rowBits = new ArrayList<ArrayList<Integer>>();
   
   ArrayList<Integer> accumulatedBytes = new ArrayList<Integer>();
 
@@ -52,6 +54,7 @@ public class Decoder {
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
       lastRowBytes.add(rowNumbers);
+      rowBits.add(rowNumbers);
     }
   }
 
@@ -104,7 +107,9 @@ public class Decoder {
         currentLiveValues.clear();
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
-          booleanValues[i] = camValues[i] > threshold ? 0 : 1;
+          int binaryVal = camValues[i] > threshold ? 0 : 1;
+          booleanValues[binaryVal]
+          rowBits.get(i).add(binaryVal);
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
@@ -199,6 +204,17 @@ public class Decoder {
     byte_index=0;
     for (int i = 0; i < ammountReadingPoints;i++) {
       lastRowBytes.get(i).clear();
+    }
+  }
+
+
+  // to do if i want to re-do
+  void processRowBits (boolean isInverted) {
+    for (int r = 0; r < rowBits.size(); r++) {
+      ArrayList<Integer> dataRow = lastRowBytes.get(r);
+      if (isInverted) {
+        Collections.reverse(dataRow);
+      }
     }
   }
 
