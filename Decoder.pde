@@ -62,8 +62,8 @@ public class Decoder {
   int [] getSignalArray () {
     // split into 8 chars
     String[] binaryStrings = bString.split("(?<=\\G........)", -1);
-    print("[Decoder] array ");
-    printArray(binaryStrings);
+    //print("[Decoder] array ");
+    //printArray(binaryStrings);
     int [] values = new int[binaryStrings.length];
     for (int i = 0; i < binaryStrings.length; i++) {
       if (binaryStrings[i].length() == 8) {

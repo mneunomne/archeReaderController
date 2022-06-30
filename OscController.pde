@@ -7,7 +7,7 @@ class OscController {
   OscController () {}
 
   void connect () {
-    oscP5 = new OscP5(this,12000);
+    oscP5 = new OscP5(this,LOCAL_PORT);
     remoteBroadcast = new NetAddress(MAX_ADDRESS, MAX_PORT);
   }
 
