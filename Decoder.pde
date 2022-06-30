@@ -269,8 +269,8 @@ public class Decoder {
     //noiseScale = 0.02;
     float [] noiseArray = new float[accumulatedBytes.size()];
     for (int i=0; i < noiseArray.length; i++) {
-      float noiseVal = noise((i)*noiseSteps, noiseSteps);
-      noiseArray[i] = ((noiseVal * noiseScale) + 1)/2;
+      float noiseVal = noise((i)*noiseSteps, 100);
+      noiseArray[i] = (((noiseVal*2)-1)*noiseScale)+0.5;
     }
     return noiseArray;
   }
