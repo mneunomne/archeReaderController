@@ -41,6 +41,7 @@ public class Camera {
 
 
   void display() {
+
     float scale = float(height) / video.width;
     float prop = video.width/video.height;
     println("scale", scale);
@@ -90,8 +91,8 @@ public class Camera {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
         for (int i = 0; i < ammount; i++) {
           int ix = i-ammount/2;
-          int fy = y+(ix*unitPixelSize);
-          int index = x+fy*w;
+          int fx = x+(ix*unitPixelSize);
+          int index = fx+y*w;
           float b = red(video.pixels[index]);
           values[i] = floor(b);
         }
