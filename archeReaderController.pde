@@ -80,7 +80,7 @@ int currentReadTime = 0;
 
 float INTERVAL = 3.2083333;
 
-int ROW_TIME = 16948;
+int ROW_TIME = 16895;//16948;
 
 // ArrayList<Integer> currentRowIndexes = new ArrayList<Integer>(); 
 
@@ -138,8 +138,6 @@ void draw() {
   background(0);
 
   // constantly listening to events from arduino
-  machineController.listenToSerialEvents();
-  machineController.update();
 
   // display camera in interface
   cam.update();
@@ -147,13 +145,14 @@ void draw() {
 
   // update gui chart with the value from the camera 
   // gui.updateChart(currentCameraValue);
-  
-  gui.updateCharts(cam.getCenterValues());
   gui.display();
 
   // display decoding interface
   decoder.update();
   decoder.display();
+
+  machineController.listenToSerialEvents();
+  machineController.update();
 
   // oscController.update();
 }
@@ -161,6 +160,7 @@ void draw() {
 /*
   ControlP5 listeners
 */
+
 void threshold_slider (float value) {
   threshold = floor(value);
 }
@@ -251,8 +251,5 @@ void keyPressed() {
     case 'A': 
     case 'S': 
     case 'D': wasd_command(key); break;
-    /* end movements */
-    case 'r': decoder.storeDataPoint(); break;
-    // case 'f': oscController.sendFinalAudio(); break;
   }
 }

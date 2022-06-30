@@ -4,6 +4,7 @@ public class Gui {
   Chart accumulatedChart;
   Chart noiseChart;
   Chart mergedChart;
+  Chart lastRowBytesChart;
   
   Chart [] dataCharts = new Chart[ammountReadingPoints];
 
@@ -13,7 +14,7 @@ public class Gui {
   int cp_width = 200;
   int cp_height = 10;
 
-  int chart_h = 200;
+  int chart_h = 150;
   int chart_w = 200;
   
   int margin = MARGIN;
@@ -161,8 +162,19 @@ public class Gui {
       ;
     y+=chart_h+margin+10;
 
-    chart_h=50;
+    chart_h=30;
     accumulatedChart = cp5.addChart("accumulatedData")
+      .setPosition(margin, y)
+      .setSize(chart_w, chart_h)
+      .setRange(0, 255)
+      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+      .setStrokeWeight(1.5)
+      .setColorCaptionLabel(color(255))
+      ;
+    accumulatedChart.addDataSet("accumulatedData");
+    y+=chart_h+margin+10;
+    
+    lastRowBytesChart = cp5.addChart("lastRowBytesData")
       .setPosition(margin, y)
       .setSize(chart_w, chart_h)
       .setRange(0, 255)
@@ -270,5 +282,9 @@ public class Gui {
   
   void updateMergedGraph(float [] samples) {
     mergedChart.setData("mergedData", samples);
+  }
+  
+  void updateLastRowBytesGraph(int value) {
+    lastRowBytesChart.push("lastRowBytesData", value);
   }
 }

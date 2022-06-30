@@ -16,11 +16,13 @@ class MachineController {
 
   boolean rowDelay = false; 
 
+  int portIndex = 7;
+
   MachineController(PApplet parent) {
     // null
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
-    String portName = Serial.list()[7]; //change the 0 to a 1 or 2 etc. to match your port
+    String portName = Serial.list()[portIndex]; //change the 0 to a 1 or 2 etc. to match your port
     port = new Serial(parent, portName, 9600);    
   }
 
@@ -155,15 +157,15 @@ class MachineController {
         break;
       case READING_ROW:
         // interpret signal and push to database? (or does this happen live)
-        decoder.endReading(false);
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
+        decoder.endReading(false);
         break;
       case READING_ROW_INVERSE:
         // interpret signal inverted
-        decoder.endReading(true);
         macroState = MACRO_IDLE;
         machineState = MACHINE_IDLE;
+        decoder.endReading(true);
         break;
       case READING_PLATE:
         onMovementEndReadingPlate();
@@ -175,7 +177,6 @@ class MachineController {
     switch (machineState) {
       case RUNNING_ROW_INVERSE:
         // interpret signal
-        decoder.endReading(true); // is inverted
         // jump to next row
         if (current_row_index < PLATE_ROWS-1) {
           //jumpRow();
@@ -183,10 +184,10 @@ class MachineController {
         } else {
           returnToTop();
         }
+        decoder.endReading(true); // is inverted
         break;
       case RUNNING_ROW:
         // interpret signal
-        decoder.endReading(false); // is inverted
         // jump to next row
         if (current_row_index < PLATE_ROWS) {
           //jumpRow();
@@ -194,6 +195,7 @@ class MachineController {
         } else {
           returnToTop();
         }
+        decoder.endReading(false); // is inverted
         break;
       case JUMPING_ROW: 
         if (lastDir < 0) {

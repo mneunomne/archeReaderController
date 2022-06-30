@@ -1,7 +1,5 @@
 public class Decoder {
-  int cols=192;
-  int rows=266;
-  int total_length = cols*rows;
+  int total_length = PLATE_COLS*PLATE_ROWS;
   
   int [] bits = new int[total_length];
 
@@ -11,10 +9,16 @@ public class Decoder {
   
   ArrayList<Integer> accumulatedBytes = new ArrayList<Integer>();
 
-  int grid_width=cols;
-  int grid_height=rows;
+  ArrayList<ArrayList<Integer>> lastRowBytes = new ArrayList<ArrayList<Integer>>();
+
+  int lastIndex = 0;
+
+  int grid_width=PLATE_COLS;
+  int grid_height=PLATE_ROWS;
 
   int lastBitsIndex = 0;
+
+  boolean startedTimer = false;
 
   PGraphics pg;
 
@@ -27,6 +31,10 @@ public class Decoder {
   ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
 
   int startReadTime = 0;
+
+  int lastUnitReadTime = 0;
+
+  int timePerUnit = floor(float(ROW_TIME)/PLATE_COLS);
 
   Decoder () {
     pg = createGraphics(width, height);
@@ -43,10 +51,11 @@ public class Decoder {
     }
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
-      rowBytes.add(rowNumbers);
+      lastRowBytes.add(rowNumbers);
     }
   }
-  
+
+  /*
   void storeDataPoint () {
     char bit = currentLiveValue > threshold ? '0' : '1';
     bString = bString + bit;
@@ -72,29 +81,42 @@ public class Decoder {
     }
     return values;
   }
+  */
 
+  int col_index=0;
+  int byte_index=0;
   void update () {    
+    if (!startedTimer) {
+      startReadTime = millis();
+      startedTimer=true;
+    }
     //if (true) return;
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
     int [] booleanValues  = new int [ammountReadingPoints];
-
     //gui.updateCharts(camValues);
-
     switch (decoderState) {
+      case DECODER_IDLE:
+        // gui.updateCharts(cam.getCenterValues());
+        break;
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentLiveValues.clear();
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
-          rowBytes.get(i).add(camValues[i]);
           booleanValues[i] = camValues[i] > threshold ? 0 : 1;
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
-        int timePerUnit = floor(float(ROW_TIME)/ROW_STEPS);
-        if (currentReadTime % timePerUnit == 0) {
+        
+        //println("timePerUnit", timePerUnit);
+        //int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
+        if (millis() - lastUnitReadTime >= realTimePerUnit) {
+          // println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
+          col_index++;
+          lastUnitReadTime=millis();
+          
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
@@ -104,47 +126,34 @@ public class Decoder {
           }
           lastBitsIndex++;
           if (lastBitsIndex == 8) { // every 8 bits...
+            //println("byte_index", byte_index);
+            byte_index++;
             lastBitsIndex=0;
             processLastBits();
             // clear last bits
             lastBits = new int[ammountReadingPoints][8];
           }
         }
-        // store data in rowBytes ArrayList
-        for (int i = 0; i < ammountReadingPoints; i++) {
-          rowBytes.get(i).add(camValues[i]);
-        }
-        break;
-      case SENDING_FAKE_DATA:
-        sendTestData();
         break;
     }
   }
 
   void processLastBits () {
+    //ArrayList<Integer> lastBytesArray =  new ArrayList<Integer>(); 
     for (int i = 0; i < ammountReadingPoints; i++) {
       String byteString = "";
       for (int b = 0; b < 8; b++) {
         byteString += String.valueOf(lastBits[i][b]);
       }
-      lastBytes[i] = Integer.parseInt(byteString, 2);
+      int byteNumber = Integer.parseInt(byteString, 2);
+      lastBytes[i] = byteNumber;
+      lastRowBytes.get(i).add(byteNumber);
     }
+    gui.updateCharts(lastBytes);
+    //gui.updateLastRowBytesGraph()
     oscController.sendLiveDataBytes(lastBytes);
   }
   
-  void sendTestData () {
-    if (frameCount % 5 == 0) {
-      if (current_row_index >= originalNumbers.length) {
-        current_row_index = 0;
-      }
-      current_row_index++;
-      int [] numbers = new int [current_row_index];
-      for (int i = 0; i < current_row_index; i++) {
-        numbers[i] = originalNumbers[i];
-      }
-      oscController.sendOscAccumulatedData(numbers, current_row_index);
-    }
-  }
   void display () {
     //render_grid();
     noTint();
@@ -159,7 +168,7 @@ public class Decoder {
     for (int i = 0; i < total_length; i++) {  
       pg.stroke(bits[i]*255, 55+bits[i]*200);
       pg.point(x, y);
-      if (x > cols) {
+      if (x > PLATE_COLS) {
         x=0;
         y++;
       } else {
@@ -170,70 +179,58 @@ public class Decoder {
   }
 
   void startReadingRow () {
-    if (current_row_index == 0) {
-      accumulatedBytes.clear();
-    }
-    startReadTime = millis();
-    for (int i = 0; i < ammountReadingPoints;i++) {
-      rowBytes.get(i).clear();
-    }
+    clearLastRows();
+    println("startReadingRow", col_index, byte_index);
     decoderState = READING_ROW_DATA;
   }
 
   void startReadingRowInverted () {
-    startReadTime = millis();
-    for (int i = 0; i < ammountReadingPoints;i++) {
-      rowBytes.get(i).clear();
-    }
+    clearLastRows();
+    println("startReadingRowInverted", col_index, byte_index);
     decoderState = READING_ROW_DATA_INVERTED;
   }
 
+  void clearLastRows () {
+    if (current_row_index == 0) {
+      accumulatedBytes.clear();
+    }
+    startedTimer=false;
+    col_index=0;
+    byte_index=0;
+    for (int i = 0; i < ammountReadingPoints;i++) {
+      lastRowBytes.get(i).clear();
+    }
+  }
+
   void endReading (boolean isInverted) {
+    println("currentReadTime", currentReadTime);
     currentReadTime=ROW_TIME;
-    int lastIndex = 0;
-    for (int r = 0; r < rowBytes.size(); r++) {
-      ArrayList<Integer> dataRow = rowBytes.get(r);
+    for (int r = 0; r < lastRowBytes.size(); r++) {
+      ArrayList<Integer> dataRow = lastRowBytes.get(r);
       if (isInverted) {
         Collections.reverse(dataRow);
       }
-      float interval = float(dataRow.size())/cols;
-      float j = 0;
-      int index=(current_row_index + r)*cols; 
-      println("[Decoder] endReading", index, interval, dataRow.size());
-      int bitIndex = 0;
-      String byteString = "";
-      for (int i = 0; i < cols; i++) { 
-        int n = dataRow.get(floor(j));
-        int bit = n > threshold ? 0 : 1;
-        if (index+i >= total_length) {
-          break;
+      println("[Decoder] endReading", lastIndex, dataRow.size());
+      for (int i = 0; i < dataRow.size(); i++) { 
+        lastIndex++; 
+        if (lastIndex >= total_length) {
+          break; // avoid last line to break because it is not complete
         }
-        bits[index+i] = bit;
-        j+=interval;
-        lastIndex=index+i;
-        byteString+=bit;
-        bitIndex++;
-        // every 8 bits ....
-        if (bitIndex == 8) {
-          int number = Integer.parseInt(byteString, 2);
-          println("byteString", byteString);
-          accumulatedBytes.add(number);
-          byteString="";
-          bitIndex=0;
-        }
+        int number = dataRow.get(i);
+        accumulatedBytes.add(number);
       }
-      render_grid();
+      //render_grid();
     }
     // get data 
-    int [] realData = getAccumulatedData(lastIndex);
-    int [] fakeData = getFakeData(lastIndex);
+    int [] realData = getAccumulatedData();
+    int [] fakeData = getFakeData();
     float [] noiseArray = generateNoiseArray();
     int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
     
     // update GUI
-    gui.updateAccumulatedGraph(toFloatArray(realData));
-    gui.updateNoiseGraph(noiseArray);
-    gui.updateMergedGraph(toFloatArray(mergedArray));
+    // gui.updateAccumulatedGraph(toFloatArray(realData));
+    // gui.updateNoiseGraph(noiseArray);
+    //gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
     if (sendFakeData) {
@@ -248,7 +245,7 @@ public class Decoder {
     decoderState = DECODER_IDLE; 
   } 
 
-  int [] getAccumulatedData (int lastIndex) {
+  int [] getAccumulatedData () {
     int [] accumulatedData = new int[accumulatedBytes.size()];
     for (int i = 0; i < accumulatedBytes.size(); i++) {
       accumulatedData[i] = accumulatedBytes.get(i);
@@ -256,7 +253,7 @@ public class Decoder {
     return accumulatedData;
   }
 
-  int [] getFakeData (int lastIndex) {
+  int [] getFakeData () {
     int [] fakeData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
     for (int i = 0; i < fakeData.length; i++) {
       fakeData[i] = originalNumbers[i];
