@@ -273,7 +273,16 @@ public class Gui {
   }
 
   void updateAccumulatedGraph(float [] samples) {
-    accumulatedChart.setData("accumulatedData", samples);
+    int [] values = new int [originalNumbers.length];
+    for(int i = 0; i < originalNumbers.length; i++) {
+      if (i < samples.length) {
+        values[i] = samples[i];
+      } else {
+        values[i] = 0;
+      }
+    }    
+
+    accumulatedChart.setData("accumulatedData", values);
   }
   
   void updateNoiseGraph(float [] samples) {

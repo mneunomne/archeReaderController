@@ -160,9 +160,9 @@ public class Decoder {
   }
   
   void display () {
-    //render_grid();
-    noTint();
-    image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
+    // render_grid();
+    // noTint();
+    // image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
   }
 
   void render_grid () {
@@ -244,9 +244,9 @@ public class Decoder {
     int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
     
     // update GUI
-    // gui.updateAccumulatedGraph(toFloatArray(realData));
-    // gui.updateNoiseGraph(noiseArray);
-    //gui.updateMergedGraph(toFloatArray(mergedArray));
+    gui.updateAccumulatedGraph(toFloatArray(realData));
+    gui.updateNoiseGraph(noiseArray);
+    gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
     if (sendFakeData) {
