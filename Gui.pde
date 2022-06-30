@@ -273,10 +273,10 @@ public class Gui {
   }
 
   void updateAccumulatedGraph(float [] samples) {
-    int [] values = new int [originalNumbers.length];
+    int [] values = new int[originalNumbers.length];
     for(int i = 0; i < originalNumbers.length; i++) {
       if (i < samples.length) {
-        values[i] = samples[i];
+        values[i] = int(samples[i]);
       } else {
         values[i] = 0;
       }

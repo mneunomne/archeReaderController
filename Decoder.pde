@@ -24,10 +24,6 @@ public class Decoder {
 
   PGraphics pg;
 
-  // original numbers audioloadJSONArray
-  JSONArray originalNumbersJSON;
-  int [] originalNumbers;
-
   int currentLiveValue = 0; 
 
   ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
@@ -108,7 +104,7 @@ public class Decoder {
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
           int binaryVal = camValues[i] > threshold ? 0 : 1;
-          booleanValues[binaryVal]
+          booleanValues[i] = binaryVal;
           rowBits.get(i).add(binaryVal);
         }
         currentReadTime=(millis()-startReadTime);

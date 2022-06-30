@@ -106,6 +106,10 @@ int [] lastBytes = new int [ammountReadingPoints];
 boolean sendFakeData = false;
 boolean sendMergedData = true;
 
+// original numbers audioloadJSONArray
+JSONArray originalNumbersJSON;
+int [] originalNumbers;
+
 PFont myFont;
 
 void setup() {
