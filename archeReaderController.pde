@@ -97,6 +97,9 @@ float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
 
+float real_fake_balance_default = 0.5;
+float real_fake_balance = 0.5;
+
 int reading_row_interval_default = 5000;
 int reading_row_interval = reading_row_interval_default;
 
@@ -107,10 +110,14 @@ int [] lastBytes = new int [ammountReadingPoints];
 boolean sendFakeData = false;
 boolean sendMergedData = true;
 
+// original numbers audioloadJSONArray
+JSONArray originalNumbersJSON;
+int [] originalNumbers;
+
 PFont myFont;
 
 void setup() {
-  size(900, 600);
+  size(674, 1280);
 
   cam = new Camera(this);
   cam.init();
@@ -193,6 +200,10 @@ void unit_size (float value) {
 
 void reading_row_interval_slider (float value) {
   reading_row_interval = int(value);
+}
+
+void real_fake_balance_slider (float value) {
+  real_fake_balance = value;
 }
 
 

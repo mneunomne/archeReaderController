@@ -41,8 +41,20 @@ public class Camera {
 
 
   void display() {
-    tint(255, 0, 0);
-    image(video, 0, 0, width, height);
+    float scale = float(height) / video.width;
+    float prop = video.width/video.height;
+    println("scale", scale);
+    float video_w = height;
+    float video_h =  video_w / prop;
+
+    //tint(255, 0, 0);
+    imageMode(CENTER);
+    pushMatrix(); // remember current drawing matrix)
+    translate(width/2, height/2);
+    rotate(radians(270));
+    image(video, 0, 0, video_w, video_h);
+    popMatrix();
+    //filter(THRESHOLD, float(threshold)/255);
     stroke(255, 0, 0);
     noFill();
     // capture

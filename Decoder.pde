@@ -24,10 +24,6 @@ public class Decoder {
 
   PGraphics pg;
 
-  // original numbers audioloadJSONArray
-  JSONArray originalNumbersJSON;
-  int [] originalNumbers;
-
   int currentLiveValue = 0; 
 
   ArrayList<Integer> currentLiveValues = new ArrayList<Integer>(); 
@@ -53,7 +49,8 @@ public class Decoder {
     }
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
-      lastRowBytes.add(rowNumbers);
+      ArrayList<Integer> rowByteNumbers = new ArrayList<Integer>();
+      lastRowBytes.add(rowByteNumbers);
       rowBits.add(rowNumbers);
     }
   }
@@ -108,7 +105,7 @@ public class Decoder {
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
           int binaryVal = camValues[i] > threshold ? 0 : 1;
-          booleanValues[binaryVal];
+          booleanValues[i] = binaryVal;
           rowBits.get(i).add(binaryVal);
         }
         currentReadTime=(millis()-startReadTime);
@@ -117,7 +114,7 @@ public class Decoder {
         
         int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
         //println("timePerUnit", millis() - lastUnitReadTime, realTimePerUnit, float(1000)/frameRate);
-        if (millis() - lastUnitReadTime >= timePerUnit) {
+        if (millis() - lastUnitReadTime >= realTimePerUnit) {
           //println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
           col_index++;
           lastUnitReadTime=millis();
@@ -297,8 +294,10 @@ public class Decoder {
   int [] getMergedDataArray (int [] real_data, int [] fake_data, float [] noise_array) {
     int [] mergedData = new int[min(accumulatedBytes.size(), fake_data.length)];
     for (int i = 0; i < mergedData.length; i++) {
-      float real_val = real_data[i] * (noise_array[i]);
-      float fake_val = fake_data[i] * (1 - noise_array[i]);
+      float realProp = (noise_array[i]*2)-1; 
+      println("realProp", realProp);
+      float real_val = real_data[i] * (realProp);
+      float fake_val = fake_data[i] * (1-realProp);
       mergedData[i] = floor(real_val + fake_val);
     }
     return mergedData;

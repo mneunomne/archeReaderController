@@ -195,11 +195,21 @@ public class Gui {
       ;
     noiseChart.addDataSet("noiseData");
     // noise scale slider
+    /*
     cp5.addSlider("noise_step_slider")
       .setPosition(margin+chart_w,y)
       .setSize(cp_height, chart_h)
       .setValue(noise_step_default)
       .setRange(0.0001, 0.1)
+      .setLabelVisible(true)
+      ;
+      */
+    // noise scale slider
+    cp5.addSlider("noise_scale_slider")
+      .setPosition(margin+chart_w,y)
+      .setSize(cp_height, chart_h)
+      .setValue(noise_scale_default)
+      .setRange(0, 1)
       .setLabelVisible(true)
       ;
     y+=chart_h+margin+10;
@@ -213,11 +223,11 @@ public class Gui {
       .setColorCaptionLabel(color(255))
       ;
     mergedChart.addDataSet("mergedData");
-    // noise scale slider
-    cp5.addSlider("noise_scale_slider")
+    
+    cp5.addSlider("real_fake_balance_slider")
       .setPosition(margin+chart_w,y)
       .setSize(cp_height, chart_h)
-      .setValue(noise_scale_default)
+      .setValue(real_fake_balance_default)
       .setRange(0, 1)
       .setLabelVisible(true)
       ;
@@ -273,7 +283,7 @@ public class Gui {
   }
 
   void updateAccumulatedGraph(float [] samples) {
-    int [] values = new int [originalNumbers.length];
+    float [] values = new float[originalNumbers.length];
     for(int i = 0; i < originalNumbers.length; i++) {
       if (i < samples.length) {
         values[i] = samples[i];
@@ -281,7 +291,6 @@ public class Gui {
         values[i] = 0;
       }
     }    
-
     accumulatedChart.setData("accumulatedData", values);
   }
   
