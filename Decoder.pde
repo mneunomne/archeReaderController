@@ -110,10 +110,10 @@ public class Decoder {
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         // every time the reader is at a particular bit step
         
-        //println("timePerUnit", timePerUnit);
-        //int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
-        if (millis() - lastUnitReadTime >= realTimePerUnit) {
-          // println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
+        int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
+        //println("timePerUnit", millis() - lastUnitReadTime, realTimePerUnit, float(1000)/frameRate);
+        if (millis() - lastUnitReadTime >= timePerUnit) {
+          //println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
           col_index++;
           lastUnitReadTime=millis();
           
@@ -126,7 +126,7 @@ public class Decoder {
           }
           lastBitsIndex++;
           if (lastBitsIndex == 8) { // every 8 bits...
-            //println("byte_index", byte_index);
+            println("byte_index", byte_index);
             byte_index++;
             lastBitsIndex=0;
             processLastBits();
@@ -276,7 +276,7 @@ public class Decoder {
   }
 
   int [] getMergedDataArray (int [] real_data, int [] fake_data, float [] noise_array) {
-    int [] mergedData = new int[accumulatedBytes.size()];
+    int [] mergedData = new int[min(accumulatedBytes.size(), fake_data.length)];
     for (int i = 0; i < mergedData.length; i++) {
       float real_val = real_data[i] * (noise_array[i]);
       float fake_val = fake_data[i] * (1 - noise_array[i]);
