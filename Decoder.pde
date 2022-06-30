@@ -236,6 +236,9 @@ public class Decoder {
     if (sendFakeData) {
       // send fake
       dataPayload = fakeData;
+    } else if (sendMergedData) {
+      // send merged array
+      dataPayload = mergedArray;
     } else {
       // send accumulated data to Max/msp through OSC
       dataPayload = realData;

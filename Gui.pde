@@ -128,7 +128,7 @@ public class Gui {
     cp5.addToggle("merge_data")
       .setPosition(fx, fy)
       .setSize(button_w, button_h)
-      .setValue(false)
+      .setValue(true)
       ;
     fy+= button_h+margin+10;
   }
