@@ -105,6 +105,7 @@ int [] lastBytes = new int [ammountReadingPoints];
 
 /* Debug variables */
 boolean sendFakeData = false;
+boolean sendMergedData = true;
 
 PFont myFont;
 
@@ -237,6 +238,10 @@ void wasd_command (char key) {
 
 void fake_data (boolean value) {
   sendFakeData = value;
+}
+
+void merge_data (boolean value) {
+  sendMergedData = value;
 }
 
 // wasd movement keys

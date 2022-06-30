@@ -6,6 +6,8 @@ public class Decoder {
   String bString = "";
 
   ArrayList<ArrayList<Integer>> rowBytes = new ArrayList<ArrayList<Integer>>();
+
+  ArrayList<ArrayList<Integer>> rowBits = new ArrayList<ArrayList<Integer>>();
   
   ArrayList<Integer> accumulatedBytes = new ArrayList<Integer>();
 
@@ -52,6 +54,7 @@ public class Decoder {
     for (int i = 0; i < ammountReadingPoints;i++) {
       ArrayList<Integer> rowNumbers = new ArrayList<Integer>();
       lastRowBytes.add(rowNumbers);
+      rowBits.add(rowNumbers);
     }
   }
 
@@ -104,7 +107,9 @@ public class Decoder {
         currentLiveValues.clear();
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
-          booleanValues[i] = camValues[i] > threshold ? 0 : 1;
+          int binaryVal = camValues[i] > threshold ? 0 : 1;
+          booleanValues[binaryVal]
+          rowBits.get(i).add(binaryVal);
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
@@ -155,9 +160,9 @@ public class Decoder {
   }
   
   void display () {
-    //render_grid();
-    noTint();
-    image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
+    // render_grid();
+    // noTint();
+    // image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
   }
 
   void render_grid () {
@@ -202,6 +207,17 @@ public class Decoder {
     }
   }
 
+
+  // to do if i want to re-do
+  void processRowBits (boolean isInverted) {
+    for (int r = 0; r < rowBits.size(); r++) {
+      ArrayList<Integer> dataRow = lastRowBytes.get(r);
+      if (isInverted) {
+        Collections.reverse(dataRow);
+      }
+    }
+  }
+
   void endReading (boolean isInverted) {
     println("currentReadTime", currentReadTime);
     currentReadTime=ROW_TIME;
@@ -228,14 +244,17 @@ public class Decoder {
     int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
     
     // update GUI
-    // gui.updateAccumulatedGraph(toFloatArray(realData));
-    // gui.updateNoiseGraph(noiseArray);
-    //gui.updateMergedGraph(toFloatArray(mergedArray));
+    gui.updateAccumulatedGraph(toFloatArray(realData));
+    gui.updateNoiseGraph(noiseArray);
+    gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
     if (sendFakeData) {
       // send fake
       dataPayload = fakeData;
+    } else if (sendMergedData) {
+      // send merged array
+      dataPayload = mergedArray;
     } else {
       // send accumulated data to Max/msp through OSC
       dataPayload = realData;
@@ -269,8 +288,8 @@ public class Decoder {
     //noiseScale = 0.02;
     float [] noiseArray = new float[accumulatedBytes.size()];
     for (int i=0; i < noiseArray.length; i++) {
-      float noiseVal = noise((i)*noiseSteps, noiseSteps);
-      noiseArray[i] = ((noiseVal * noiseScale) + 1)/2;
+      float noiseVal = noise((i)*noiseSteps, 100);
+      noiseArray[i] = (((noiseVal*2)-1)*noiseScale)+0.5;
     }
     return noiseArray;
   }
