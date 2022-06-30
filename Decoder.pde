@@ -108,7 +108,7 @@ public class Decoder {
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
           int binaryVal = camValues[i] > threshold ? 0 : 1;
-          booleanValues[binaryVal]
+          booleanValues[binaryVal];
           rowBits.get(i).add(binaryVal);
         }
         currentReadTime=(millis()-startReadTime);
