@@ -25,7 +25,7 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[0]);
+      video = new Capture(parent, cameras[1]);
       video.start();
     }
     w = video.width;
@@ -44,11 +44,10 @@ public class Camera {
 
     float scale = float(height) / video.width;
     float prop = video.width/video.height;
-    println("scale", scale);
     float video_w = height;
     float video_h =  video_w / prop;
 
-    //tint(255, 0, 0);
+    tint(255, 0, 0);
     imageMode(CENTER);
     pushMatrix(); // remember current drawing matrix)
     translate(width/2, height/2);
@@ -65,7 +64,7 @@ public class Camera {
 
     for(int i = 0; i < capturedValues.length; i++) {
       int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
-      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, (float(captureSize)/w)*width, (float(captureSize)/w)*width);
+      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, captureSize, captureSize);
     }
   }
 

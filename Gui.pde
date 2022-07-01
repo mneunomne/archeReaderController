@@ -32,6 +32,7 @@ public class Gui {
     sliders();
     buttons();
     // texts();
+    bigCharts();
   }
 
   void sliders () {
@@ -63,6 +64,16 @@ public class Gui {
       .setRange(1, 20)
       ;
     y+=cp_height+margin;
+
+    cp5.addSlider("real_fake_balance_slider")
+      .setPosition(margin+chart_w,y)
+      .setSize(cp_height, chart_h)
+      .setValue(real_fake_balance_default)
+      .setRange(0, 1)
+      .setLabelVisible(true)
+      ;
+    y+=chart_h+margin+10;
+
     /*
     cp5.addSlider("reading_points_slider")
       .setPosition(margin,y)
@@ -163,16 +174,7 @@ public class Gui {
     y+=chart_h+margin+10;
 
     chart_h=30;
-    accumulatedChart = cp5.addChart("accumulatedData")
-      .setPosition(margin, y)
-      .setSize(chart_w, chart_h)
-      .setRange(0, 255)
-      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
-      .setStrokeWeight(1.5)
-      .setColorCaptionLabel(color(255))
-      ;
-    accumulatedChart.addDataSet("accumulatedData");
-    y+=chart_h+margin+10;
+    
     
     lastRowBytesChart = cp5.addChart("lastRowBytesData")
       .setPosition(margin, y)
@@ -182,7 +184,7 @@ public class Gui {
       .setStrokeWeight(1.5)
       .setColorCaptionLabel(color(255))
       ;
-    accumulatedChart.addDataSet("accumulatedData");
+    //accumulatedChart.addDataSet("accumulatedData");
     y+=chart_h+margin+10;
     
     noiseChart = cp5.addChart("noiseData")
@@ -214,24 +216,34 @@ public class Gui {
       ;
     y+=chart_h+margin+10;
     
-    mergedChart = cp5.addChart("mergedChart")
-      .setPosition(margin, y)
-      .setSize(chart_w, chart_h)
+
+  }
+
+  void bigCharts () {
+    int big_w = width-margin*2;
+    int big_h = 100;
+    int fy = height-big_h*2-margin*2-20;
+    accumulatedChart = cp5.addChart("accumulatedData")
+      .setPosition(margin, fy)
+      .setSize(big_w, big_h)
       .setRange(0, 255)
       .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
       .setStrokeWeight(1.5)
+      .setColorBackground(color(0, 20))
+      .setColorCaptionLabel(color(255))
+      ;
+    accumulatedChart.addDataSet("accumulatedData");
+    fy+=big_h+margin+10;
+    mergedChart = cp5.addChart("mergedChart")
+      .setPosition(margin, fy)
+      .setSize(big_w, big_h)
+      .setRange(0, 255)
+      .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
+      .setStrokeWeight(1.5)
+      .setColorBackground(color(0, 20))
       .setColorCaptionLabel(color(255))
       ;
     mergedChart.addDataSet("mergedData");
-    
-    cp5.addSlider("real_fake_balance_slider")
-      .setPosition(margin+chart_w,y)
-      .setSize(cp_height, chart_h)
-      .setValue(real_fake_balance_default)
-      .setRange(0, 1)
-      .setLabelVisible(true)
-      ;
-    y+=chart_h+margin+10;
   }
 
   Textlabel myTextlabelA;
@@ -260,15 +272,17 @@ public class Gui {
     text("proportional time: " + float(currentReadTime)/ROW_TIME, fx,fy);
     fy+=margin+5;
     
-    int rectSize = 8;
+    int rectSize = chart_w/16;
+    noFill();
     int ry = y + margin;
     for (int i = 0; i < ammountReadingPoints; i++) {
       ry+=rectSize;
       int rx = margin;
       for (int j = 0; j < 8; j++) {
-        fill(lastBits[i][j]*255); 
-        rx+=rectSize;
+        stroke(lastBits[i][j]*255);
+        fill(lastBits[i][j]*255, lastBits[i][j]*255);
         rect(rx, ry, rectSize, rectSize);
+        rx+=rectSize;
       }
       rx+=rectSize;
       fill(lastBytes[i]);
@@ -291,7 +305,7 @@ public class Gui {
         values[i] = 0;
       }
     }    
-    accumulatedChart.setData("accumulatedData", values);
+    accumulatedChart.setData("accumulatedData", samples);
   }
   
   void updateNoiseGraph(float [] samples) {
