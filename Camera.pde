@@ -8,6 +8,8 @@ public class Camera {
 
   int [] capturedValues;
 
+  PGraphics imageCapture;
+
   Camera(PApplet _parent) {
     // null
     parent = _parent;
@@ -15,6 +17,7 @@ public class Camera {
   
   void init() {
     String[] cameras = Capture.list();
+    int cameraIndex = Arrays.asList(cameras).indexOf("SMI");
     if (cameras.length == 0) {
       println("[Camera] There are no cameras available for capture.");
       exit();
@@ -25,35 +28,41 @@ public class Camera {
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
-      video = new Capture(parent, cameras[0]);
+      video = new Capture(parent, cameras[cameraIndex]);
       video.start();
     }
     w = video.width;
     h = video.height;
-    capturePosX = w/2-captureSize/2;
-    capturePosY = h/2-captureSize/2;
+    imageCapture = createGraphics(h, w);
+
+    capturePosX = imageCapture.width/2-captureSize/2;
+    capturePosY = imageCapture.height/2-captureSize/2;
     println("[Camera] video size", w, h);
   }  
 
   void update () {
+    imageCapture.beginDraw();
+      imageCapture.imageMode(CENTER);
+      imageCapture.translate(imageCapture.width/2, imageCapture.height/2);
+      imageCapture.rotate(radians(270));
+      imageCapture.image(video, 0, 0);
+    imageCapture.endDraw();
+
     setCenterValues(ammountReadingPoints);
+
   }
 
 
   void display() {
-
-    float scale = float(height) / video.width;
-    float prop = video.width/video.height;
-    println("scale", scale);
-    float video_w = height;
-    float video_h =  video_w / prop;
+    float prop = float(imageCapture.width)/imageCapture.height;
+    float video_w = width;
+    float video_h =  height*prop;
 
     //tint(255, 0, 0);
     imageMode(CENTER);
     pushMatrix(); // remember current drawing matrix)
     translate(width/2, height/2);
-    rotate(radians(270));
-    image(video, 0, 0, video_w, video_h);
+    image(imageCapture, 0, 0, video_w, video_h);
     popMatrix();
     //filter(THRESHOLD, float(threshold)/255);
     stroke(255, 0, 0);
@@ -85,15 +94,16 @@ public class Camera {
 
   // only pairs
   void setCenterValues (int ammount) {
+    imageCapture.loadPixels();
     int interval = 10;
     int [] values = new int[ammount];
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
         for (int i = 0; i < ammount; i++) {
           int ix = i-ammount/2;
-          int fx = x+(ix*unitPixelSize);
-          int index = fx+y*w;
-          float b = red(video.pixels[index]);
+          int fy = y+(ix*unitPixelSize);
+          int index = x+fy*w;
+          float b = red(imageCapture.pixels[index]);
           values[i] = floor(b);
         }
       }  

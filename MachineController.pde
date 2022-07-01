@@ -16,7 +16,7 @@ class MachineController {
 
   boolean rowDelay = false; 
 
-  int portIndex = 7;
+  int portIndex = 6;
 
   MachineController(PApplet parent) {
     // null
