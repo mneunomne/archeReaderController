@@ -36,6 +36,7 @@ public class Decoder {
 
   Decoder () {
     pg = createGraphics(width, height);
+    fullScreen();
     //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
     for (int i = 0; i < total_length; i++) bits[i] = 0;
     pg.beginDraw();

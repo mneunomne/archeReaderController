@@ -97,7 +97,7 @@ float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
 
-float real_fake_balance_default = 0.5;
+float real_fake_balance_default = 0.85;
 float real_fake_balance = 0.5;
 
 int reading_row_interval_default = 5000;
@@ -115,6 +115,10 @@ JSONArray originalNumbersJSON;
 int [] originalNumbers;
 
 PFont myFont;
+
+public void settings() {
+  fullScreen();
+}
 
 void setup() {
   size(674, 1280);
