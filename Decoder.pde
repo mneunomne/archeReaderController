@@ -236,9 +236,9 @@ public class Decoder {
     }
     // get data 
     int [] realData = getAccumulatedData();
-    int [] fakeData = getFakeData();
+    int [] originalData = getOriginalData();
     float [] noiseArray = generateNoiseArray();
-    int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
+    int [] mergedArray = getMergedDataArray(realData, originalData, noiseArray);
     
     // update GUI
     gui.updateAccumulatedGraph(toFloatArray(realData));
@@ -246,9 +246,9 @@ public class Decoder {
     gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
-    if (sendFakeData) {
-      // send fake
-      dataPayload = fakeData;
+    if (sendOriginalData) {
+      // send original
+      dataPayload = originalData;
     } else if (sendMergedData) {
       // send merged array
       dataPayload = mergedArray;
@@ -269,12 +269,12 @@ public class Decoder {
     return accumulatedData;
   }
 
-  int [] getFakeData () {
-    int [] fakeData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
-    for (int i = 0; i < fakeData.length; i++) {
-      fakeData[i] = originalNumbers[i];
+  int [] getOriginalData () {
+    int [] originalData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
+    for (int i = 0; i < originalData.length; i++) {
+      originalData[i] = originalNumbers[i];
     }
-    return fakeData;
+    return originalData;
   }
 
   int [] getFinalAudio () {
@@ -291,14 +291,14 @@ public class Decoder {
     return noiseArray;
   }
 
-  int [] getMergedDataArray (int [] real_data, int [] fake_data, float [] noise_array) {
-    int [] mergedData = new int[min(accumulatedBytes.size(), fake_data.length)];
+  int [] getMergedDataArray (int [] real_data, int [] original_data, float [] noise_array) {
+    int [] mergedData = new int[min(accumulatedBytes.size(), original_data.length)];
     for (int i = 0; i < mergedData.length; i++) {
       float realProp = (noise_array[i]*2)-1; 
       println("realProp", realProp);
       float real_val = real_data[i] * (realProp);
-      float fake_val = fake_data[i] * (1-realProp);
-      mergedData[i] = floor(real_val + fake_val);
+      float original_val = original_data[i] * (1-realProp);
+      mergedData[i] = floor(real_val + original_val);
     }
     return mergedData;
   }

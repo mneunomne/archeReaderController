@@ -65,10 +65,10 @@ public class Gui {
       ;
     y+=cp_height+margin;
 
-    cp5.addSlider("real_fake_balance_slider")
+    cp5.addSlider("real_original_balance_slider")
       .setPosition(margin+chart_w,y)
       .setSize(cp_height, chart_h)
-      .setValue(real_fake_balance_default)
+      .setValue(real_original_balance_default)
       .setRange(0, 1)
       .setLabelVisible(true)
       ;
@@ -129,7 +129,7 @@ public class Gui {
       ;
     fy+= button_h+margin+10;
 /*
-    cp5.addToggle("fake_data")
+    cp5.addToggle("original_data")
       .setPosition(fx, fy)
       .setSize(button_w, button_h)
       .setValue(false)

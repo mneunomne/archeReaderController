@@ -59,9 +59,9 @@ String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","J
 static final int DECODER_IDLE               = 0;
 static final int READING_ROW_DATA           = 1;
 static final int READING_ROW_DATA_INVERTED  = 2;
-static final int SENDING_FAKE_DATA          = 3;
+static final int SENDING_ORIGINAL_DATA          = 3;
 int decoderState = 0;
-String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_FAKE_DATA"};
+String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_ORIGINAL_DATA"};
 
 // Camera States
 static final int CAMERA_IDLE                = 0;
@@ -97,8 +97,8 @@ float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
 
-float real_fake_balance_default = 0.85;
-float real_fake_balance = 0.5;
+float real_original_balance_default = 0.85;
+float real_original_balance = 0.5;
 
 int reading_row_interval_default = 5000;
 int reading_row_interval = reading_row_interval_default;
@@ -107,7 +107,7 @@ int [][] lastBits = new int[ammountReadingPoints][8];
 int [] lastBytes = new int [ammountReadingPoints];
 
 /* Debug variables */
-boolean sendFakeData = false;
+boolean sendOriginalData = false;
 boolean sendMergedData = true;
 
 // original numbers audioloadJSONArray
@@ -117,7 +117,7 @@ int [] originalNumbers;
 PFont myFont;
 
 void setup() {
-  size(674, 1280);
+  size(1280, 960);
 
   cam = new Camera(this);
   cam.init();
@@ -202,8 +202,8 @@ void reading_row_interval_slider (float value) {
   reading_row_interval = int(value);
 }
 
-void real_fake_balance_slider (float value) {
-  real_fake_balance = value;
+void real_original_balance_slider (float value) {
+  real_original_balance = value;
 }
 
 
@@ -247,8 +247,8 @@ void wasd_command (char key) {
   }
 }
 
-void fake_data (boolean value) {
-  sendFakeData = value;
+void original_data (boolean value) {
+  sendOriginalData = value;
 }
 
 void merge_data (boolean value) {

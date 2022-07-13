@@ -33,7 +33,7 @@ public class Camera {
     }
     w = video.width;
     h = video.height;
-    imageCapture = createGraphics(h, w);
+    imageCapture = createGraphics(w, h);
 
     capturePosX = imageCapture.width/2-captureSize/2;
     capturePosY = imageCapture.height/2-captureSize/2;
@@ -44,7 +44,7 @@ public class Camera {
     imageCapture.beginDraw();
       imageCapture.imageMode(CENTER);
       imageCapture.translate(imageCapture.width/2, imageCapture.height/2);
-      imageCapture.rotate(radians(270));
+      // imageCapture.rotate(radians(270));
       imageCapture.image(video, 0, 0);
     imageCapture.endDraw();
 
@@ -57,8 +57,8 @@ public class Camera {
 
     float scale = float(height) / video.width;
     float prop = video.width/video.height;
-    float video_w = height;
-    float video_h =  video_w / prop;
+    float video_w = width;
+    float video_h =  height;
 
     tint(255, 0, 0);
     imageMode(CENTER);
