@@ -142,6 +142,13 @@ public class Gui {
       .setValue(true)
       ;
     fy+= button_h+margin+10;
+
+    cp5.addToggle("save_frame")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      .setValue(false)
+      ;
+    fy+= button_h+margin+10;
   }
 
   void chart () {

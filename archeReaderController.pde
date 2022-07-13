@@ -33,6 +33,8 @@ int PLATE_COLS = 192;
 
 static int MARGIN = 10;
 
+boolean savingFrame = false;
+
 // Macro States
 static final int MACRO_IDLE                 = 0;
 static final int RUNNING_WASD_COMMAND       = 1;
@@ -163,6 +165,10 @@ void draw() {
   machineController.update();
 
   // oscController.update();
+
+  if (savingFrame) {
+    saveFrame("frame-######.jpg");
+  }
 }
 
 /*
@@ -253,6 +259,9 @@ void original_data (boolean value) {
 
 void merge_data (boolean value) {
   sendMergedData = value;
+}
+void save_frame (boolean value) {
+  savingFrame = value;
 }
 
 // wasd movement keys
