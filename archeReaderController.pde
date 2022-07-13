@@ -88,7 +88,7 @@ int small_steps_default = UNIT_STEPS;
 int big_steps_default   = ROW_STEPS;
 int reading_points_default = 7; 
 int ammountReadingPoints = 7; 
-int threshold_default   = 150;
+int threshold_default   = 168;
 int lastDir = 0; 
 float noise_scale_default = 0.5;
 float noise_step_default = 0.005;
@@ -97,7 +97,7 @@ float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
 
-float real_fake_balance_default = 0.5;
+float real_fake_balance_default = 0.85;
 float real_fake_balance = 0.5;
 
 int reading_row_interval_default = 5000;
