@@ -40,7 +40,7 @@ public class Camera {
     }
     w = video.width;
     h = video.height;
-    imageCapture = createGraphics(w, h);
+    imageCapture = createGraphics(w, h, P2D);
 
     capturePosX = imageCapture.width/2-captureSize/2;
     capturePosY = imageCapture.height/2-captureSize/2;
@@ -53,9 +53,7 @@ public class Camera {
         imageCapture.translate(imageCapture.width/2, imageCapture.height/2);
         // imageCapture.rotate(radians(270));
         if (video.available()) {
-          println("update");
           video.read();
-          imageCapture.image(video, 0, 0);
         }
       imageCapture.endDraw();
   
@@ -64,6 +62,13 @@ public class Camera {
 
 
   void display() {
+    
+    imageCapture.beginDraw();
+      imageCapture.imageMode(CENTER);
+      imageCapture.translate(imageCapture.width/2, imageCapture.height/2);
+      // imageCapture.rotate(radians(270));
+      imageCapture.image(video, 0, 0, width, height);
+    imageCapture.endDraw();
 
     float scale = float(height) / video.width;
     float prop = video.width/video.height;
@@ -89,7 +94,6 @@ public class Camera {
       rect((float(capturePosX)/w)*width, (float(fy)/h)*height, captureSize, captureSize);
     }
     
-    image(video, 0, 0, width, height);
   }
 
   int getCenterValue () {

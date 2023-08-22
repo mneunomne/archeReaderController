@@ -53,11 +53,11 @@ class OscController {
     }
 
     // set cam to send live feed to parallel window
-    // OscMessage messageFeed = new OscMessage("/live_feed");
-    // messageFeed.add(perc_x);
-    // messageFeed.add(perc_y);
-    // oscP5.send(message, parallelAddress);
-    cam.sendLiveFeed(perc_x, perc_y);
+    OscMessage messageFeed = new OscMessage("/live_feed");
+    messageFeed.add(perc_x);
+    messageFeed.add(perc_y);
+    oscP5.send(messageFeed, parallelAddress);
+    // cam.sendLiveFeed(perc_x, perc_y);
   }
 
   void sendLiveDataBits (int [] data, float perc) {

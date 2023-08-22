@@ -27,7 +27,7 @@ int LOCAL_PORT = 8003;
 
 // Parallel, run on same computer on this case
 String PARALLEL_ADDRESS = "127.0.0.1";
-int PARALLEL_PORT = 8002;
+int PARALLEL_PORT = 12001;
 
 int UNIT_STEPS = 88;
 int ROW_STEPS = 16725;
