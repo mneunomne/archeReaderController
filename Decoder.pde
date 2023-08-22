@@ -110,12 +110,10 @@ public class Decoder {
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
-        // every time the reader is at a particular bit step
         
+        // every time the reader is at a particular bit step        
         int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
-        //println("timePerUnit", millis() - lastUnitReadTime, realTimePerUnit, float(1000)/frameRate);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
-          //println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
           col_index++;
           lastUnitReadTime=millis();
           
@@ -141,7 +139,6 @@ public class Decoder {
   }
 
   void processLastBits () {
-    //ArrayList<Integer> lastBytesArray =  new ArrayList<Integer>(); 
     for (int i = 0; i < ammountReadingPoints; i++) {
       String byteString = "";
       for (int b = 0; b < 8; b++) {

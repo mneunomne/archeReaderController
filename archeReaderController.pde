@@ -9,6 +9,7 @@ import processing.video.*;
 import processing.serial.*;
 import netP5.*;
 import oscP5.*;
+import codeanticode.syphon.*;
 
 Gui gui;
 Camera cam;
@@ -24,12 +25,16 @@ String MAX_ADDRESS = "127.0.0.1"; //"10.10.48.52";
 int MAX_PORT = 12000;
 int LOCAL_PORT = 8003;
 
+// Parallel, run on same computer on this case
+String PARALLEL_ADDRESS = "127.0.0.1";
+int PARALLEL_PORT = 8002;
+
 int UNIT_STEPS = 88;
 int ROW_STEPS = 16725;
 int COLS_STEPS = 23083;
 
-int PLATE_ROWS = 265;
 int PLATE_COLS = 192;
+int PLATE_ROWS = 265;
 
 static int MARGIN = 10;
 
@@ -61,7 +66,7 @@ String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","J
 static final int DECODER_IDLE               = 0;
 static final int READING_ROW_DATA           = 1;
 static final int READING_ROW_DATA_INVERTED  = 2;
-static final int SENDING_ORIGINAL_DATA          = 3;
+static final int SENDING_ORIGINAL_DATA      = 3;
 int decoderState = 0;
 String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_ORIGINAL_DATA"};
 
@@ -119,7 +124,10 @@ int [] originalNumbers;
 PFont myFont;
 
 void setup() {
-  size(1280, 960);
+  
+  size(640, 480, P2D);
+  
+  loadConfig();
 
   cam = new Camera(this);
   cam.init();
@@ -131,22 +139,25 @@ void setup() {
   gui.init();
 
   decoder = new Decoder();
-
-  oscController = new OscController();
+  
+  oscController = new OscController(this);
   oscController.connect();
+  // CREATE A NEW SPOUT OBJECT
+
 
   myFont = createFont("PTMono-Regular", 9);
   textFont(myFont);
   // printArray(PFont.list());
 }
 
-void captureEvent(Capture c) {
-  c.read();
+void loadConfig() {
+  // load json file data/config.json
 }
+
 
 void draw() {
   background(0);
-
+  
   // constantly listening to events from arduino
 
   // display camera in interface
