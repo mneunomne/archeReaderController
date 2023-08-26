@@ -1,6 +1,8 @@
 public class Camera {
   Capture video;
   PApplet parent;
+
+  PImage rawImage;
   
   int captureSize = 2;
   int capturePosX, capturePosY;
@@ -34,7 +36,7 @@ public class Camera {
         println("[Camera] No OBS Virtual Camera camera found, using default one instead");
         video = new Capture(this.parent, cameras[0], 30);
       } else {
-        video = new Capture(this.parent, cameras[0], 30);
+        video = new Capture(this.parent, cameras[cameraIndex], 30);
       }
       video.start();
     }
@@ -149,5 +151,17 @@ public class Camera {
 
   int [] getCenterValues () {
     return capturedValues;
+  }
+
+  void takePicture() {
+    // save with current frameCount
+    String filename = "photo_"+frameCount+".png";
+    imageCapture.save(filename);
+  }
+
+  void saveImage(int posX, int posY, int index) {
+    String filename = "photos/"+index+"_"+posX+"_"+posY+".png";
+    // rawImage.save(filename);
+    imageCapture.save(filename);
   }
 }

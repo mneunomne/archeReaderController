@@ -1,3 +1,4 @@
 *.autosave
 *.DS_Store
 *.jpg
+photos/*.png

@@ -128,6 +128,18 @@ public class Gui {
       .setSize(button_w, button_h)
       ;
     fy+= button_h+margin+10;
+
+    cp5.addBang("take_pictures")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      ;
+    fy+= button_h+margin+10;
+
+    cp5.addBang("take_one_picture")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      ;
+    fy+= button_h+margin+10;
 /*
     cp5.addToggle("original_data")
       .setPosition(fx, fy)

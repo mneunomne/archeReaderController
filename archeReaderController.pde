@@ -31,7 +31,9 @@ int PARALLEL_PORT = 12001;
 
 int UNIT_STEPS = 88;
 int ROW_STEPS = 16725;
-int COLS_STEPS = 23083;
+int COLS_STEPS = 23082; // origonal was 23083
+
+int PICTURE_STEPS = floor(ROW_STEPS / 5);
 
 int PLATE_COLS = 192;
 int PLATE_ROWS = 265;
@@ -48,8 +50,9 @@ static final int READING_ROW                = 3;
 static final int READING_ROW_INVERSE        = 4;
 static final int READING_PLATE              = 5;
 static final int STOP_MACHINE               = 6;
+static final int TAKE_PICTURES              = 7;
 int macroState = 0;
-String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP"};
+String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP", "TAKE_PICTURES"};
 
 // Machine States
 static final int MACHINE_IDLE               = 0;
@@ -59,8 +62,9 @@ static final int JUMPING_ROW                = 3;
 static final int RUNNING_UNIT               = 4;
 static final int RUNNING_WASD               = 5;
 static final int RETURNING_TOP              = 6;
+static final int RUNNING_PICTURE_STEPS      = 7;
 int machineState = 0;
-String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP"};
+String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP", "RUNNING_PICTURE_STEPS"};
 
 // Decoder States
 static final int DECODER_IDLE               = 0;
@@ -245,6 +249,15 @@ void read_plate () {
 
 void stop_machine () {
   macroState = STOP_MACHINE;
+}
+
+void take_pictures () {
+  macroState = TAKE_PICTURES;
+  machineController.runPictureSteps();
+}
+
+void take_one_picture () {
+  cam.takePicture();
 }
 
 void wasd_command (char key) {

@@ -18,6 +18,10 @@ class MachineController {
 
   int portIndex = 1;
 
+  int pictureIndex = 0;  
+
+  char nextDir = '+';
+
   MachineController(PApplet parent) {
     // null
     print("[MachineController] SerialList: ");
@@ -49,8 +53,9 @@ class MachineController {
   }
 
   void moveX (int steps) {
-    accumulated_x=+steps;
+    this.accumulated_x = this.accumulated_x+steps;
     char dir = steps > 0 ? '+' : '-';
+    lastDir = dir; 
     sendMovementCommand(dir, abs(steps), 'x');
   }
 
@@ -95,10 +100,19 @@ class MachineController {
     moveY(UNIT_STEPS * ammountReadingPoints);
   }
 
+  void runPictureSteps() {
+    pictureIndex = 0;
+    setInitialPosition();
+    machineState = RUNNING_PICTURE_STEPS;
+    cam.saveImage(accumulated_x, accumulated_y, pictureIndex);
+    moveX(PICTURE_STEPS);
+  }
+
   void runPlate () {
     if (ammountReadingPoints > 1) {
       // need to move the camera down before it starts
     } else {
+      setInitialPosition();
       machineState = READING_PLATE;
       moveX(ROW_STEPS);
     }
@@ -169,6 +183,26 @@ class MachineController {
         break;
       case READING_PLATE:
         onMovementEndReadingPlate();
+        break;
+      case TAKE_PICTURES:
+        println("accumulated_x: " + accumulated_x + " accumulated_y: " + accumulated_y);
+        pictureIndex+=1;
+        // wait half a second
+        cam.saveImage(abs(accumulated_x), accumulated_y, pictureIndex);
+        if (abs(accumulated_x) < ROW_STEPS) {
+          if (nextDir == '+') {
+            moveX(PICTURE_STEPS);
+          } else {
+            moveX(-PICTURE_STEPS);
+          }
+        } else if (accumulated_y < COLS_STEPS){
+          accumulated_x=0;
+          nextDir = nextDir == '+' ? '-' : '+';
+          moveY(int(PICTURE_STEPS/2));
+        } else {
+          macroState = MACRO_IDLE;
+          machineState = MACHINE_IDLE;
+        }
         break;
     }
   }
