@@ -61,7 +61,6 @@ class MachineController {
   void moveX (int steps) {
     this.accumulated_x = this.accumulated_x+steps;
     char dir = steps > 0 ? '+' : '-';
-    lastDir = dir; 
     sendMovementCommand(dir, abs(steps), 'x');
   }
 

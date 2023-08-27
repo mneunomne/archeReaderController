@@ -293,7 +293,6 @@ public class Decoder {
     int [] mergedData = new int[min(accumulatedBytes.size(), original_data.length)];
     for (int i = 0; i < mergedData.length; i++) {
       float realProp = (noise_array[i]*2)-1; 
-      println("realProp", realProp);
       float real_val = real_data[i] * (realProp);
       float original_val = original_data[i] * (1-realProp);
       mergedData[i] = floor(real_val + original_val);

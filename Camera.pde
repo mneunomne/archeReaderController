@@ -14,6 +14,8 @@ public class Camera {
 
   PGraphics imageCapture;
 
+  String cameraName = "OBS Virtual Camera";
+
   Camera(PApplet _parent) {
     // null
     this.parent = _parent;
@@ -21,7 +23,7 @@ public class Camera {
   
   void init() {
     String[] cameras = Capture.list();
-    int cameraIndex = Arrays.asList(cameras).indexOf("OBS Virtual Camera");
+    int cameraIndex = Arrays.asList(cameras).indexOf(cameraName);
     if (cameras.length == 0) {
       println("[Camera] There are no cameras available for capture.");
       exit();
