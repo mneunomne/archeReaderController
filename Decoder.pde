@@ -85,16 +85,16 @@ public class Decoder {
 
   int col_index=0;
   int byte_index=0;
-  void update () {    
+  void update () { 
+    // start timer
     if (!startedTimer) {
       startReadTime = millis();
       startedTimer=true;
     }
-    //if (true) return;
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
     int [] booleanValues  = new int [ammountReadingPoints];
-    //gui.updateCharts(camValues);
+    
     switch (decoderState) {
       case DECODER_IDLE:
         // gui.updateCharts(cam.getCenterValues());
@@ -102,6 +102,7 @@ public class Decoder {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentLiveValues.clear();
+        // read bits! (everyframe)
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
           int binaryVal = camValues[i] > threshold ? 0 : 1;
@@ -111,12 +112,12 @@ public class Decoder {
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
         
-        // every time the reader is at a particular bit step        
+        // every time the reader is at a particular bit step
+        // position of each square given the time per unit
         int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
           col_index++;
           lastUnitReadTime=millis();
-          
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);

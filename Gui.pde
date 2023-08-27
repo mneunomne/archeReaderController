@@ -54,7 +54,7 @@ public class Gui {
       .setPosition(margin,y)
       .setSize(cp_width, cp_height)
       .setValue(unit_size_default)
-      .setRange(1, 20)
+      .setRange(1, 100)
       ;
     y+=cp_height+margin;
     cp5.addSlider("reading_row_interval_slider")

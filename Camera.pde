@@ -36,7 +36,7 @@ public class Camera {
         println("[Camera] No OBS Virtual Camera camera found, using default one instead");
         video = new Capture(this.parent, cameras[0], 30);
       } else {
-        video = new Capture(this.parent, cameras[cameraIndex], 30);
+        video = new Capture(this.parent, 1080, 1920, cameras[cameraIndex]);
       }
       video.start();
     }
@@ -103,11 +103,11 @@ public class Camera {
     // crop image to load pixels only from the center
     PImage img = video.get(capturePosX, capturePosY, captureSize, captureSize); 
     float sum = 0;
-    video.loadPixels();
+    img.loadPixels();
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
         int i = x+y*w;
-        float b = red(video.pixels[i]);
+        float b = red(img.pixels[i]);
         sum+=b;
       }  
     }

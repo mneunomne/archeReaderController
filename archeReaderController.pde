@@ -127,16 +127,18 @@ int [] originalNumbers;
 
 PFont myFont;
 
+boolean noMachine = false;
+
 void setup() {
   
-  size(640, 480, P2D);
+  size(1080, 1920, P2D);
   
   loadConfig();
 
   cam = new Camera(this);
   cam.init();
 
-  machineController = new MachineController(this);
+  machineController = new MachineController(this, noMachine);
 
   ControlP5 cp5 = new ControlP5(this);
   gui = new Gui(cp5);

@@ -22,8 +22,13 @@ class MachineController {
 
   char nextDir = '+';
 
-  MachineController(PApplet parent) {
-    // null
+  boolean noMachine = false;
+
+  MachineController(PApplet parent, boolean _noMachine) {
+    // if no machine, don't connect to serial
+    noMachine = _noMachine;
+    if (noMachine) return; 
+    // Connect to Serial
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
     String portName = Serial.list()[portIndex]; //change the 0 to a 1 or 2 etc. to match your port
@@ -31,6 +36,7 @@ class MachineController {
   }
 
   void update () {
+    // add a delay before reading next row
     if (rowDelay) {
       if (millis() >= timeFinnishedRow+readingRowInterval) {
         jumpRow();
@@ -70,7 +76,7 @@ class MachineController {
   void sendMovementCommand (char dir, int value, char axis) {
     // e.g.: +100x
     String s = dir + String.valueOf(value) + axis;
-    lastMovement = s; 
+    lastMovement = s;
     println("[MachineController] sending: " + s);
     port.write(s);
   }
