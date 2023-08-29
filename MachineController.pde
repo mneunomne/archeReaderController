@@ -16,10 +16,19 @@ class MachineController {
 
   boolean rowDelay = false; 
 
-  int portIndex = 6;
+  int portIndex = 1;
 
-  MachineController(PApplet parent) {
-    // null
+  int pictureIndex = 0;  
+
+  char nextDir = '+';
+
+  boolean noMachine = false;
+
+  MachineController(PApplet parent, boolean _noMachine) {
+    // if no machine, don't connect to serial
+    noMachine = _noMachine;
+    if (noMachine) return; 
+    // Connect to Serial
     print("[MachineController] SerialList: ");
     printArray(Serial.list());
     String portName = Serial.list()[portIndex]; //change the 0 to a 1 or 2 etc. to match your port
@@ -27,6 +36,7 @@ class MachineController {
   }
 
   void update () {
+    // add a delay before reading next row
     if (rowDelay) {
       if (millis() >= timeFinnishedRow+readingRowInterval) {
         jumpRow();
@@ -49,7 +59,7 @@ class MachineController {
   }
 
   void moveX (int steps) {
-    accumulated_x=+steps;
+    this.accumulated_x = this.accumulated_x+steps;
     char dir = steps > 0 ? '+' : '-';
     sendMovementCommand(dir, abs(steps), 'x');
   }
@@ -65,7 +75,7 @@ class MachineController {
   void sendMovementCommand (char dir, int value, char axis) {
     // e.g.: +100x
     String s = dir + String.valueOf(value) + axis;
-    lastMovement = s; 
+    lastMovement = s;
     println("[MachineController] sending: " + s);
     port.write(s);
   }
@@ -95,10 +105,19 @@ class MachineController {
     moveY(UNIT_STEPS * ammountReadingPoints);
   }
 
+  void runPictureSteps() {
+    pictureIndex = 0;
+    setInitialPosition();
+    machineState = RUNNING_PICTURE_STEPS;
+    cam.saveImage(accumulated_x, accumulated_y, pictureIndex);
+    moveX(PICTURE_STEPS);
+  }
+
   void runPlate () {
     if (ammountReadingPoints > 1) {
       // need to move the camera down before it starts
     } else {
+      setInitialPosition();
       machineState = READING_PLATE;
       moveX(ROW_STEPS);
     }
@@ -169,6 +188,26 @@ class MachineController {
         break;
       case READING_PLATE:
         onMovementEndReadingPlate();
+        break;
+      case TAKE_PICTURES:
+        println("accumulated_x: " + accumulated_x + " accumulated_y: " + accumulated_y);
+        pictureIndex+=1;
+        // wait half a second
+        cam.saveImage(abs(accumulated_x), accumulated_y, pictureIndex);
+        if (abs(accumulated_x) < ROW_STEPS) {
+          if (nextDir == '+') {
+            moveX(PICTURE_STEPS);
+          } else {
+            moveX(-PICTURE_STEPS);
+          }
+        } else if (accumulated_y < COLS_STEPS){
+          accumulated_x=0;
+          nextDir = nextDir == '+' ? '-' : '+';
+          moveY(int(PICTURE_STEPS/2));
+        } else {
+          macroState = MACRO_IDLE;
+          machineState = MACHINE_IDLE;
+        }
         break;
     }
   }

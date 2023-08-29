@@ -9,6 +9,7 @@ import processing.video.*;
 import processing.serial.*;
 import netP5.*;
 import oscP5.*;
+import codeanticode.syphon.*;
 
 Gui gui;
 Camera cam;
@@ -24,14 +25,22 @@ String MAX_ADDRESS = "127.0.0.1"; //"10.10.48.52";
 int MAX_PORT = 12000;
 int LOCAL_PORT = 8003;
 
+// Parallel, run on same computer on this case
+String PARALLEL_ADDRESS = "127.0.0.1";
+int PARALLEL_PORT = 12001;
+
 int UNIT_STEPS = 88;
 int ROW_STEPS = 16725;
-int COLS_STEPS = 23083;
+int COLS_STEPS = 23082; // origonal was 23083
 
-int PLATE_ROWS = 265;
+int PICTURE_STEPS = floor(ROW_STEPS / 5);
+
 int PLATE_COLS = 192;
+int PLATE_ROWS = 265;
 
 static int MARGIN = 10;
+
+boolean savingFrame = false;
 
 // Macro States
 static final int MACRO_IDLE                 = 0;
@@ -41,8 +50,9 @@ static final int READING_ROW                = 3;
 static final int READING_ROW_INVERSE        = 4;
 static final int READING_PLATE              = 5;
 static final int STOP_MACHINE               = 6;
+static final int TAKE_PICTURES              = 7;
 int macroState = 0;
-String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP"};
+String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP", "TAKE_PICTURES"};
 
 // Machine States
 static final int MACHINE_IDLE               = 0;
@@ -52,16 +62,17 @@ static final int JUMPING_ROW                = 3;
 static final int RUNNING_UNIT               = 4;
 static final int RUNNING_WASD               = 5;
 static final int RETURNING_TOP              = 6;
+static final int RUNNING_PICTURE_STEPS      = 7;
 int machineState = 0;
-String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP"};
+String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP", "RUNNING_PICTURE_STEPS"};
 
 // Decoder States
 static final int DECODER_IDLE               = 0;
 static final int READING_ROW_DATA           = 1;
 static final int READING_ROW_DATA_INVERTED  = 2;
-static final int SENDING_FAKE_DATA          = 3;
+static final int SENDING_ORIGINAL_DATA      = 3;
 int decoderState = 0;
-String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_FAKE_DATA"};
+String [] decoderStates = {"DECODER_IDLE","READING_ROW_DATA","READING_ROW_DATA_INVERTED", "SENDING_ORIGINAL_DATA"};
 
 // Camera States
 static final int CAMERA_IDLE                = 0;
@@ -97,8 +108,8 @@ float noiseSteps = noise_step_default;
 int unit_size_default = 14;
 int unitPixelSize = unit_size_default;
 
-float real_fake_balance_default = 0.85;
-float real_fake_balance = 0.5;
+float real_original_balance_default = 0.85;
+float real_original_balance = 0.5;
 
 int reading_row_interval_default = 5000;
 int reading_row_interval = reading_row_interval_default;
@@ -107,7 +118,7 @@ int [][] lastBits = new int[ammountReadingPoints][8];
 int [] lastBytes = new int [ammountReadingPoints];
 
 /* Debug variables */
-boolean sendFakeData = false;
+boolean sendOriginalData = false;
 boolean sendMergedData = true;
 
 // original numbers audioloadJSONArray
@@ -116,35 +127,43 @@ int [] originalNumbers;
 
 PFont myFont;
 
+boolean noMachine = false;
+
 void setup() {
-  size(674, 1280);
+  
+  size(1080, 1920, P2D);
+  
+  loadConfig();
 
   cam = new Camera(this);
   cam.init();
 
-  machineController = new MachineController(this);
+  machineController = new MachineController(this, noMachine);
 
   ControlP5 cp5 = new ControlP5(this);
   gui = new Gui(cp5);
   gui.init();
 
   decoder = new Decoder();
-
-  oscController = new OscController();
+  
+  oscController = new OscController(this);
   oscController.connect();
+  // CREATE A NEW SPOUT OBJECT
+
 
   myFont = createFont("PTMono-Regular", 9);
   textFont(myFont);
   // printArray(PFont.list());
 }
 
-void captureEvent(Capture c) {
-  c.read();
+void loadConfig() {
+  // load json file data/config.json
 }
+
 
 void draw() {
   background(0);
-
+  
   // constantly listening to events from arduino
 
   // display camera in interface
@@ -163,6 +182,10 @@ void draw() {
   machineController.update();
 
   // oscController.update();
+
+  if (savingFrame) {
+    saveFrame("frame-######.jpg");
+  }
 }
 
 /*
@@ -202,8 +225,8 @@ void reading_row_interval_slider (float value) {
   reading_row_interval = int(value);
 }
 
-void real_fake_balance_slider (float value) {
-  real_fake_balance = value;
+void real_original_balance_slider (float value) {
+  real_original_balance = value;
 }
 
 
@@ -230,6 +253,15 @@ void stop_machine () {
   macroState = STOP_MACHINE;
 }
 
+void take_pictures () {
+  macroState = TAKE_PICTURES;
+  machineController.runPictureSteps();
+}
+
+void take_one_picture () {
+  cam.takePicture();
+}
+
 void wasd_command (char key) {
   macroState = RUNNING_WASD_COMMAND;
   machineState = RUNNING_WASD;
@@ -247,12 +279,15 @@ void wasd_command (char key) {
   }
 }
 
-void fake_data (boolean value) {
-  sendFakeData = value;
+void original_data (boolean value) {
+  sendOriginalData = value;
 }
 
 void merge_data (boolean value) {
   sendMergedData = value;
+}
+void save_frame (boolean value) {
+  savingFrame = value;
 }
 
 // wasd movement keys

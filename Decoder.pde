@@ -85,16 +85,16 @@ public class Decoder {
 
   int col_index=0;
   int byte_index=0;
-  void update () {    
+  void update () { 
+    // start timer
     if (!startedTimer) {
       startReadTime = millis();
       startedTimer=true;
     }
-    //if (true) return;
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
     int [] booleanValues  = new int [ammountReadingPoints];
-    //gui.updateCharts(camValues);
+    
     switch (decoderState) {
       case DECODER_IDLE:
         // gui.updateCharts(cam.getCenterValues());
@@ -102,6 +102,7 @@ public class Decoder {
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
         currentLiveValues.clear();
+        // read bits! (everyframe)
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
           int binaryVal = camValues[i] > threshold ? 0 : 1;
@@ -110,15 +111,13 @@ public class Decoder {
         }
         currentReadTime=(millis()-startReadTime);
         float proportionalTime = float(currentReadTime)/ROW_TIME;
-        // every time the reader is at a particular bit step
         
+        // every time the reader is at a particular bit step
+        // position of each square given the time per unit
         int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
-        //println("timePerUnit", millis() - lastUnitReadTime, realTimePerUnit, float(1000)/frameRate);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
-          //println("col_index", (millis() - lastUnitReadTime) - timePerUnit);
           col_index++;
           lastUnitReadTime=millis();
-          
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
@@ -141,7 +140,6 @@ public class Decoder {
   }
 
   void processLastBits () {
-    //ArrayList<Integer> lastBytesArray =  new ArrayList<Integer>(); 
     for (int i = 0; i < ammountReadingPoints; i++) {
       String byteString = "";
       for (int b = 0; b < 8; b++) {
@@ -236,9 +234,9 @@ public class Decoder {
     }
     // get data 
     int [] realData = getAccumulatedData();
-    int [] fakeData = getFakeData();
+    int [] originalData = getOriginalData();
     float [] noiseArray = generateNoiseArray();
-    int [] mergedArray = getMergedDataArray(realData, fakeData, noiseArray);
+    int [] mergedArray = getMergedDataArray(realData, originalData, noiseArray);
     
     // update GUI
     gui.updateAccumulatedGraph(toFloatArray(realData));
@@ -246,9 +244,9 @@ public class Decoder {
     gui.updateMergedGraph(toFloatArray(mergedArray));
     
     int [] dataPayload;
-    if (sendFakeData) {
-      // send fake
-      dataPayload = fakeData;
+    if (sendOriginalData) {
+      // send original
+      dataPayload = originalData;
     } else if (sendMergedData) {
       // send merged array
       dataPayload = mergedArray;
@@ -269,12 +267,12 @@ public class Decoder {
     return accumulatedData;
   }
 
-  int [] getFakeData () {
-    int [] fakeData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
-    for (int i = 0; i < fakeData.length; i++) {
-      fakeData[i] = originalNumbers[i];
+  int [] getOriginalData () {
+    int [] originalData = new int[min(accumulatedBytes.size(), originalNumbers.length)];
+    for (int i = 0; i < originalData.length; i++) {
+      originalData[i] = originalNumbers[i];
     }
-    return fakeData;
+    return originalData;
   }
 
   int [] getFinalAudio () {
@@ -291,14 +289,13 @@ public class Decoder {
     return noiseArray;
   }
 
-  int [] getMergedDataArray (int [] real_data, int [] fake_data, float [] noise_array) {
-    int [] mergedData = new int[min(accumulatedBytes.size(), fake_data.length)];
+  int [] getMergedDataArray (int [] real_data, int [] original_data, float [] noise_array) {
+    int [] mergedData = new int[min(accumulatedBytes.size(), original_data.length)];
     for (int i = 0; i < mergedData.length; i++) {
       float realProp = (noise_array[i]*2)-1; 
-      println("realProp", realProp);
       float real_val = real_data[i] * (realProp);
-      float fake_val = fake_data[i] * (1-realProp);
-      mergedData[i] = floor(real_val + fake_val);
+      float original_val = original_data[i] * (1-realProp);
+      mergedData[i] = floor(real_val + original_val);
     }
     return mergedData;
   }

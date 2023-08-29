@@ -1,14 +1,26 @@
 class OscController {
   OscP5 oscP5;
 
-  NetAddress remoteBroadcast; 
+  NetAddress remoteBroadcast;
+  NetAddress parallelAddress; 
   NetAddress localBroadcast;
 
-  OscController () {}
+  XML xml, px, py;
+
+  SyphonServer syphonServer;
+
+  PApplet parent;
+
+  OscController (PApplet _parent) {
+    parent = _parent;
+  }
 
   void connect () {
     oscP5 = new OscP5(this,LOCAL_PORT);
     remoteBroadcast = new NetAddress(MAX_ADDRESS, MAX_PORT);
+    parallelAddress = new NetAddress(PARALLEL_ADDRESS, PARALLEL_PORT);
+    // syphon server to send camera images
+    syphonServer = new SyphonServer(parent, "Processing Syphon");
   }
 
   // OLD - not used
@@ -32,6 +44,20 @@ class OscController {
     rowProp.add(perc);
     oscP5.send(message, remoteBroadcast);
     oscP5.send(rowProp, remoteBroadcast);
+
+    float perc_y = (float) current_row_index / (float) PLATE_COLS;
+    float perc_x = perc;
+    // if inverted, send inverted prop
+    if (decoderState == READING_ROW_DATA_INVERTED) {
+      perc_x = 1.0 - perc; 
+    }
+
+    // set cam to send live feed to parallel window
+    OscMessage messageFeed = new OscMessage("/live_feed");
+    messageFeed.add(perc_x);
+    messageFeed.add(perc_y);
+    oscP5.send(messageFeed, parallelAddress);
+    // cam.sendLiveFeed(perc_x, perc_y);
   }
 
   void sendLiveDataBits (int [] data, float perc) {
@@ -41,6 +67,12 @@ class OscController {
     rowProp.add(perc);
     oscP5.send(message, remoteBroadcast);
     oscP5.send(rowProp, remoteBroadcast);
+  }
+
+  void sendVideoFeed (PGraphics pg, float perc_x, float perc_y) {
+    println("[OscController] send video feed", perc_x, perc_y);
+    // send video feed to parallel window
+    syphonServer.sendImage(pg);
   }
 
   void sendLiveDataBytes (int [] data) {
