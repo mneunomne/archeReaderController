@@ -114,7 +114,12 @@ public class Decoder {
         break;
       case READING_ROW_DATA:
       case READING_ROW_DATA_INVERTED:
-        currentLiveValues.clear();
+        if(current_row_index + ammountReadingPoints > PLATE_ROWS || col_index == PLATE_COLS) {
+          // dont read
+          return;
+        }
+        currentLiveValues.clear();  
+
         // read bits! (everyframe)
         for (int i = 0; i < ammountReadingPoints; i++) {
           currentLiveValues.add(camValues[i]);
@@ -129,19 +134,21 @@ public class Decoder {
         // position of each square given the time per unit
         int realTimePerUnit = timePerUnit;//floor(timePerUnit-(float(1000)/frameRate)/2);
         // leftOverMillis= 0;
-        println("realTimePerUnit", realTimePerUnit, "timePerUnit", timePerUnit, millis() - lastUnitReadTime);
+        // println("realTimePerUnit", realTimePerUnit, "timePerUnit", timePerUnit, millis() - lastUnitReadTime);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
           leftOverMillis = (millis() - lastUnitReadTime) - realTimePerUnit;
           if (lastUnitReadTime == 0) {
             leftOverMillis = 0;
           } 
-          println("leftOverMillis", leftOverMillis);
+          // println("leftOverMillis", leftOverMillis);
           col_index++; // can already go to next col because the camValues are stores
           lastUnitReadTime=millis() - leftOverMillis;
           if (col_index > PLATE_COLS) {
+            // no more data reading
+            return; 
             // end reading
-            endReading(decoderState == READING_ROW_DATA_INVERTED);
-            break;
+            // endReading(decoderState == READING_ROW_DATA_INVERTED);
+            // break;
           }
           print("read col", col_index);
           // send individual bits data to Max as array, not the arrayList 
@@ -189,11 +196,12 @@ public class Decoder {
     draw_grid();
     // render_grid();
     // noTint();
-    pushMatrix();
+    pushStyle();
+      noTint();
       imageMode(CORNER);
       image(pg, width-MARGIN-pg.width, MARGIN);
       imageMode(CENTER);
-    popMatrix();
+    popStyle();
   }
 
   void draw_grid () {
@@ -205,9 +213,9 @@ public class Decoder {
         int val = bit_grid[y][x];
         if (val != -1) {
           if (val == 1) {
-            pg.fill(255, 10);
-          } else {
             pg.fill(0, 10);
+          } else {
+            pg.fill(255, 10);
           }
         } else {
           pg.fill(0, 0);

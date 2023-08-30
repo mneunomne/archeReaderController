@@ -90,13 +90,18 @@ public class Camera {
     noFill();
     // capture
     // unitPixelSize
-    stroke(0, 0, 255);
+    pushStyle();
+    rectMode(CENTER);
+    // stroke(0, 0, 255, 0);
+    noFill();
+    // ?
     rect((float(unitPixelSize)/w)*width, (float(unitPixelSize)/h)*height, (float(unitPixelSize)/w)*width, (float(unitPixelSize)/w)*width);
-
     for(int i = 0; i < capturedValues.length; i++) {
       int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
-      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, captureSize, captureSize);
+      stroke(255-capturedValues[i]);
+      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize*2-2, unitPixelSize*2-2);
     }
+    popStyle();
     
   }
 
@@ -120,7 +125,6 @@ public class Camera {
   // only pairs
   void setCenterValues (int ammount) {
     imageCapture.loadPixels();
-    int interval = 10;
     int [] values = new int[ammount];
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {

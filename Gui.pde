@@ -19,7 +19,7 @@ public class Gui {
   
   int margin = MARGIN;
   int y = margin; 
-  
+
   Gui (ControlP5 _cp5) {
     cp5 = _cp5;
   }
@@ -27,6 +27,8 @@ public class Gui {
   void init () {
     cp5.setColorForeground(color(255, 150));
     cp5.setColorBackground(color(0, 150));
+
+    myTextlabelB = new Textlabel(cp5,"Another textlabel, not created through ControlP5 needs to be rendered separately by calling Textlabel.draw(PApplet).",100,100,400,200);
 
     chart();
     sliders();
@@ -66,8 +68,8 @@ public class Gui {
     y+=cp_height+margin;
 
     cp5.addSlider("real_original_balance_slider")
-      .setPosition(margin+chart_w,y)
-      .setSize(cp_height, chart_h)
+      .setPosition(margin,y)
+      .setSize(cp_width, cp_height)
       .setValue(real_original_balance_default)
       .setRange(0, 1)
       .setLabelVisible(true)
@@ -240,7 +242,7 @@ public class Gui {
 
   void bigCharts () {
     int big_w = width-margin*2;
-    int big_h = 100;
+    int big_h = 150;
     int fy = height-big_h*2-margin*2-20;
     accumulatedChart = cp5.addChart("accumulatedData")
       .setPosition(margin, fy)
@@ -248,7 +250,7 @@ public class Gui {
       .setRange(0, 255)
       .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
       .setStrokeWeight(1.5)
-      .setColorBackground(color(0, 20))
+      // .setColorBackground(color(0, 20))
       .setColorCaptionLabel(color(255))
       ;
     accumulatedChart.addDataSet("accumulatedData");
@@ -259,7 +261,7 @@ public class Gui {
       .setRange(0, 255)
       .setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
       .setStrokeWeight(1.5)
-      .setColorBackground(color(0, 20))
+      // .setColorBackground(color(0, 20))
       .setColorCaptionLabel(color(255))
       ;
     mergedChart.addDataSet("mergedData");
@@ -270,35 +272,37 @@ public class Gui {
 
   void display () {
     fill(255);
-    int fy = margin * 2;
-    int fx = margin*3+chart_w;
-    text("frameRate: " + frameRate, fx,fy);
-    fy+=margin+5;
-    text("timeElapsed: " + millis()/1000, fx,fy);
-    fy+=margin+5;
-    text("macroState: " + macroStates[macroState], fx,fy);
-    fy+=margin+5;
-    text("machineState: " + machineStates[machineState], fx,fy);
-    fy+=margin+5;
-    text("decoderState: " + decoderStates[decoderState], fx,fy);
-    fy+=margin+5;
-    text("current_row_index: " + current_row_index, fx,fy);
-    fy+=margin+5;
-    text("last_direction: " + lastDir, fx,fy);
-    fy+=margin+5;
-    text("currentReadTime: " + currentReadTime, fx,fy);
-    fy+=margin+5;
-    text("proportional time: " + float(currentReadTime)/ROW_TIME, fx,fy);
-    fy+=margin+5;
+    if (debug) {
+      int fy = margin * 2;
+      int fx = margin*3+chart_w;
+      text("frameRate: " + frameRate, fx,fy);
+      fy+=margin+5;
+      text("timeElapsed: " + millis()/1000, fx,fy);
+      fy+=margin+5;
+      text("macroState: " + macroStates[macroState], fx,fy);
+      fy+=margin+5;
+      text("machineState: " + machineStates[machineState], fx,fy);
+      fy+=margin+5;
+      text("decoderState: " + decoderStates[decoderState], fx,fy);
+      fy+=margin+5;
+      text("current_row_index: " + current_row_index, fx,fy);
+      fy+=margin+5;
+      text("last_direction: " + lastDir, fx,fy);
+      fy+=margin+5;
+      text("currentReadTime: " + currentReadTime, fx,fy);
+      fy+=margin+5;
+      text("proportional time: " + float(currentReadTime)/ROW_TIME, fx,fy);
+      fy+=margin+5;
+    }
     
     int rectSize = chart_w/16;
     noFill();
     int ry = y + margin;
+    stroke(0);
     for (int i = 0; i < ammountReadingPoints; i++) {
       ry+=rectSize;
       int rx = margin;
       for (int j = 0; j < 8; j++) {
-        stroke(lastBits[i][j]*255);
         fill(lastBits[i][j]*255, lastBits[i][j]*255);
         rect(rx, ry, rectSize, rectSize);
         rx+=rectSize;
@@ -306,6 +310,9 @@ public class Gui {
       rx+=rectSize;
       fill(lastBytes[i]);
       rect(rx, ry, rectSize, rectSize);
+      // text with P5
+      text(lastBytes[i], rx+rectSize*2, ry+rectSize-2);
+      
     }
   }
 

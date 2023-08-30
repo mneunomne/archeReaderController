@@ -41,6 +41,7 @@ int PICTURE_STEPS = floor(ROW_STEPS / 5);
 
 int PLATE_COLS = 192;
 int PLATE_ROWS = 265;
+// int PLATE_ROWS = 21;
 
 static int MARGIN = 10;
 
@@ -161,6 +162,8 @@ void setup() {
   frameRate(30);
 
   size(1080, 1920, P2D);
+
+  smooth();
   
   loadConfig();
 

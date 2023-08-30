@@ -88,7 +88,6 @@ class MachineController {
     machineState = RETURNING_TOP_OFFSET;
     moveX(dir * OFFSET_STEPS);
     // moveY(-UNIT_STEPS*current_row_index);
-    current_row_index=0;
   }
 
   void resetOffset () {
@@ -96,7 +95,6 @@ class MachineController {
     machineState = RESET_OFFSET;
     moveX(-lastDirOffset * OFFSET_STEPS);
     // moveY(-UNIT_STEPS*current_row_index);
-    current_row_index=0;
   }
 
   void returnToTop () {
@@ -237,7 +235,7 @@ class MachineController {
       case RUNNING_ROW_INVERSE:
         // interpret signal
         // jump to next row
-        if (current_row_index < PLATE_ROWS-1) {
+        if (current_row_index + ammountReadingPoints < PLATE_ROWS-1) {
           //jumpRow();
           rowDelay=true;
         } else { // ended reading plate
@@ -249,7 +247,7 @@ class MachineController {
       case RUNNING_ROW:
         // interpret signal
         // jump to next row
-        if (current_row_index < PLATE_ROWS) {
+        if (current_row_index + ammountReadingPoints < PLATE_ROWS-1) {
           //jumpRow();
           rowDelay=true;
         } else { // ended reading plate
@@ -265,23 +263,21 @@ class MachineController {
           runRowInverse();
         }
         break;
+      // after offset side, go to top
       case RETURNING_TOP_OFFSET:
         returnToTop();
         break;
+      // after go to top, reset offset
       case RETURNING_TOP:
-        if (lastDir < 0) {
+        resetOffset();
+        break; 
+      // after reset offset, start reading again
+      case RESET_OFFSET:
+        if (lastDirOffset < 0) {
           runRow();
         } else {
           runRowInverse();
         }
-        break; 
-      case RESET_OFFSET:
-        if (lastDirOffset < 0) {
-          // returnToTopOffeset(-1);
-        } else {
-          // returnToTopOffeset(1);
-        }
-        // returnToTop();
         break;
     }
   }
