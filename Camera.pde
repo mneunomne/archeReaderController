@@ -14,6 +14,8 @@ public class Camera {
 
   PGraphics imageCapture;
 
+  PImage cropped;
+
   String cameraName = "OBS Virtual Camera";
 
   Camera(PApplet _parent) {
@@ -38,7 +40,7 @@ public class Camera {
         println("[Camera] No OBS Virtual Camera camera found, using default one instead");
         video = new Capture(this.parent, cameras[0], 30);
       } else {
-        video = new Capture(this.parent, cameras[0]);
+        video = new Capture(this.parent, 1080, 1920, cameras[0], 30);
       }
       video.start();
     }
@@ -52,16 +54,10 @@ public class Camera {
   }  
 
   void update () {
-      imageCapture.beginDraw();
-        imageCapture.imageMode(CENTER);
-        imageCapture.translate(imageCapture.width/2, imageCapture.height/2);
-        // imageCapture.rotate(radians(270));
-        if (video.available()) {
-          video.read();
-        }
-      imageCapture.endDraw();
-  
-      setCenterValues(ammountReadingPoints);
+    if (video.available()) {
+      video.read();
+    }
+    setCenterValues(ammountReadingPoints);  
   }
 
 
@@ -86,21 +82,19 @@ public class Camera {
     image(imageCapture, 0, 0, video_w, video_h);
     popMatrix();
     //filter(THRESHOLD, float(threshold)/255);
-    stroke(255, 0, 0);
-    noFill();
     // capture
     // unitPixelSize
     pushStyle();
-    rectMode(CENTER);
-    // stroke(0, 0, 255, 0);
-    noFill();
-    // ?
-    rect((float(unitPixelSize)/w)*width, (float(unitPixelSize)/h)*height, (float(unitPixelSize)/w)*width, (float(unitPixelSize)/w)*width);
-    for(int i = 0; i < capturedValues.length; i++) {
-      int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
-      stroke(255-capturedValues[i]);
-      rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize*2-2, unitPixelSize*2-2);
-    }
+      rectMode(CENTER);
+      // stroke(0, 0, 255, 0);
+      noFill();
+      // ?
+      
+      for(int i = 0; i < capturedValues.length; i++) {
+        int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
+        stroke(255-capturedValues[i]);
+        rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize, unitPixelSize);
+      }
     popStyle();
     
   }
@@ -108,7 +102,8 @@ public class Camera {
   int getCenterValue () {
 
     // crop image to load pixels only from the center
-    PImage img = video.get(capturePosX, capturePosY, captureSize, captureSize); 
+    PImage img = video.get(capturePosX, capturePosY, captureSize, captureSize);
+    
     float sum = 0;
     img.loadPixels();
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
@@ -124,8 +119,9 @@ public class Camera {
 
   // only pairs
   void setCenterValues (int ammount) {
-    imageCapture.loadPixels();
+    // PImage cropped = imageCapture.get(width/2-unitPixelSize, height/2-int(float(unitPixelSize*ammount)/2), unitPixelSize*2, unitPixelSize*2 * ammount);
     int [] values = new int[ammount];
+    imageCapture.loadPixels();
     for(int y = capturePosY; y < capturePosY+captureSize; y++) {
       for(int x = capturePosX; x < capturePosX+captureSize; x++) {
         for (int i = 0; i < ammount; i++) {

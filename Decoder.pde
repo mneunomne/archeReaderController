@@ -206,7 +206,7 @@ public class Decoder {
 
   void draw_grid () {
     pg.beginDraw();
-    stroke(0);
+    pg.noStroke();
     for (int y = 0; y < grid_height; y++) {
       for (int x = 0; x < grid_width; x++) {
         int index = x + y * grid_width;
