@@ -11,16 +11,18 @@ import netP5.*;
 import oscP5.*;
 import codeanticode.syphon.*;
 
+boolean debug = false;
+
 Gui gui;
 Camera cam;
 MachineController machineController;
-Decoder decoder; 
+Decoder decoder;
 OscController oscController;
 
 int [] last_values = new int [100];
 
 /* GLOBALS */
-//"10.10.49.32";
+// "10.10.49.32";
 String MAX_ADDRESS = "127.0.0.1"; //"10.10.48.52";
 int MAX_PORT = 12000;
 int LOCAL_PORT = 8003;
@@ -32,6 +34,8 @@ int PARALLEL_PORT = 12001;
 int UNIT_STEPS = 88;
 int ROW_STEPS = 16725;
 int COLS_STEPS = 23082; // origonal was 23083
+
+int OFFSET_STEPS = 4000;
 
 int PICTURE_STEPS = floor(ROW_STEPS / 5);
 
@@ -52,7 +56,17 @@ static final int READING_PLATE              = 5;
 static final int STOP_MACHINE               = 6;
 static final int TAKE_PICTURES              = 7;
 int macroState = 0;
-String [] macroStates = {"MACRO_IDLE","RUNNING_WASD_COMMAND","READING_UNIT","READING_ROW","READING_ROW_INVERSE","READING_PLATE", "STOP_MACHINE", "RETURNING_TOP", "TAKE_PICTURES"};
+String [] macroStates = {
+  "MACRO_IDLE",
+  "RUNNING_WASD_COMMAND",
+  "READING_UNIT",
+  "READING_ROW",
+  "READING_ROW_INVERSE",
+  "READING_PLATE",
+  "STOP_MACHINE",
+  "RETURNING_TOP",
+  "TAKE_PICTURES"
+};
 
 // Machine States
 static final int MACHINE_IDLE               = 0;
@@ -63,8 +77,21 @@ static final int RUNNING_UNIT               = 4;
 static final int RUNNING_WASD               = 5;
 static final int RETURNING_TOP              = 6;
 static final int RUNNING_PICTURE_STEPS      = 7;
+static final int RETURNING_TOP_OFFSET       = 8;
+static final int RESET_OFFSET               = 9;
 int machineState = 0;
-String [] machineStates = {"MACHINE_IDLE","RUNNING_ROW_INVERSE","RUNNING_ROW","JUMPING_ROW","RUNNING_UNIT", "RUNNING_WASD", "RETURNING_TOP", "RUNNING_PICTURE_STEPS"};
+String [] machineStates = {
+  "MACHINE_IDLE",
+  "RUNNING_ROW_INVERSE",
+  "RUNNING_ROW",
+  "JUMPING_ROW",
+  "RUNNING_UNIT", 
+  "RUNNING_WASD",
+  "RETURNING_TOP",
+  "RUNNING_PICTURE_STEPS",
+  "RETURNING_TOP_OFFSET",
+  "RESET_OFFSET"
+};
 
 // Decoder States
 static final int DECODER_IDLE               = 0;
@@ -131,6 +158,8 @@ boolean noMachine = false;
 
 void setup() {
   
+  frameRate(30);
+
   size(1080, 1920, P2D);
   
   loadConfig();
@@ -154,6 +183,9 @@ void setup() {
   myFont = createFont("PTMono-Regular", 9);
   textFont(myFont);
   // printArray(PFont.list());
+
+  // set initial debug state
+  toggleDebug(false);
 }
 
 void loadConfig() {
@@ -290,6 +322,15 @@ void save_frame (boolean value) {
   savingFrame = value;
 }
 
+void toggleDebug (boolean value) {
+  debug = value;
+  if (debug) {
+    gui.showDebugElements();
+  } else {
+    gui.hideDebugElements();
+  }
+}
+
 // wasd movement keys
 void keyPressed() {
   switch (key) {
@@ -302,5 +343,6 @@ void keyPressed() {
     case 'A': 
     case 'S': 
     case 'D': wasd_command(key); break;
+    case '.': toggleDebug(!debug); break;
   }
 }

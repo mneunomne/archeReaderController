@@ -24,6 +24,8 @@ class MachineController {
 
   boolean noMachine = false;
 
+  int lastDirOffset = 0; 
+
   MachineController(PApplet parent, boolean _noMachine) {
     // if no machine, don't connect to serial
     noMachine = _noMachine;
@@ -78,6 +80,23 @@ class MachineController {
     lastMovement = s;
     println("[MachineController] sending: " + s);
     port.write(s);
+  }
+
+  void returnToTopOffeset (int dir) {
+    println("returnToTopOffeset!", dir);
+    lastDirOffset = dir;
+    machineState = RETURNING_TOP_OFFSET;
+    moveX(dir * OFFSET_STEPS);
+    // moveY(-UNIT_STEPS*current_row_index);
+    current_row_index=0;
+  }
+
+  void resetOffset () {
+    println("resetOffset!");
+    machineState = RESET_OFFSET;
+    moveX(-lastDirOffset * OFFSET_STEPS);
+    // moveY(-UNIT_STEPS*current_row_index);
+    current_row_index=0;
   }
 
   void returnToTop () {
@@ -212,6 +231,7 @@ class MachineController {
     }
   }
 
+  // unifying all the decisions if the current macro state is reading plate. 
   void onMovementEndReadingPlate () {
     switch (machineState) {
       case RUNNING_ROW_INVERSE:
@@ -220,8 +240,9 @@ class MachineController {
         if (current_row_index < PLATE_ROWS-1) {
           //jumpRow();
           rowDelay=true;
-        } else {
-          returnToTop();
+        } else { // ended reading plate
+          returnToTopOffeset(-1);
+          // returnToTop();
         }
         decoder.endReading(true); // is inverted
         break;
@@ -231,8 +252,9 @@ class MachineController {
         if (current_row_index < PLATE_ROWS) {
           //jumpRow();
           rowDelay=true;
-        } else {
-          returnToTop();
+        } else { // ended reading plate
+          returnToTopOffeset(1);
+          // returnToTop();
         }
         decoder.endReading(false); // is inverted
         break;
@@ -243,6 +265,9 @@ class MachineController {
           runRowInverse();
         }
         break;
+      case RETURNING_TOP_OFFSET:
+        returnToTop();
+        break;
       case RETURNING_TOP:
         if (lastDir < 0) {
           runRow();
@@ -250,6 +275,14 @@ class MachineController {
           runRowInverse();
         }
         break; 
+      case RESET_OFFSET:
+        if (lastDirOffset < 0) {
+          // returnToTopOffeset(-1);
+        } else {
+          // returnToTopOffeset(1);
+        }
+        // returnToTop();
+        break;
     }
   }
 }

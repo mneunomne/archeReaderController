@@ -32,14 +32,18 @@ public class Decoder {
 
   int lastUnitReadTime = 0;
 
+  int leftOverMillis = 0;
+
   int timePerUnit = floor(float(ROW_TIME)/PLATE_COLS);
 
+  int [][] bit_grid = new int[grid_height][grid_width]; 
+
   Decoder () {
-    pg = createGraphics(width, height);
+    pg = createGraphics(grid_width*2, grid_height*2);
     //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
-    for (int i = 0; i < total_length; i++) bits[i] = 0;
+    resetStoredBitData();
     pg.beginDraw();
-    pg.background(100);
+    pg.background(0, 0);
     pg.endDraw();
     // load original numbers
     originalNumbersJSON = loadJSONArray("data/data_numbers.json");
@@ -53,6 +57,13 @@ public class Decoder {
       lastRowBytes.add(rowByteNumbers);
       rowBits.add(rowNumbers);
     }
+  }
+
+  void resetStoredBitData () {
+    for (int i = 0; i < total_length; i++) {
+      bits[i] = 0;
+      bit_grid[floor(i/PLATE_COLS)][i%PLATE_COLS] = -1;
+    }  
   }
 
   /*
@@ -88,8 +99,10 @@ public class Decoder {
   void update () { 
     // start timer
     if (!startedTimer) {
+      print("start timer!");
       startReadTime = millis();
       startedTimer=true;
+      lastUnitReadTime = millis() - timePerUnit;
     }
     // get multiple values at once
     int [] camValues = cam.getCenterValues();
@@ -114,16 +127,34 @@ public class Decoder {
         
         // every time the reader is at a particular bit step
         // position of each square given the time per unit
-        int realTimePerUnit = floor(timePerUnit-(float(1000)/frameRate)/2);
+        int realTimePerUnit = timePerUnit;//floor(timePerUnit-(float(1000)/frameRate)/2);
+        // leftOverMillis= 0;
+        println("realTimePerUnit", realTimePerUnit, "timePerUnit", timePerUnit, millis() - lastUnitReadTime);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
-          col_index++;
-          lastUnitReadTime=millis();
+          leftOverMillis = (millis() - lastUnitReadTime) - realTimePerUnit;
+          if (lastUnitReadTime == 0) {
+            leftOverMillis = 0;
+          } 
+          println("leftOverMillis", leftOverMillis);
+          col_index++; // can already go to next col because the camValues are stores
+          lastUnitReadTime=millis() - leftOverMillis;
+          if (col_index > PLATE_COLS) {
+            // end reading
+            endReading(decoderState == READING_ROW_DATA_INVERTED);
+            break;
+          }
+          print("read col", col_index);
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
           // read bits!
           for (int i = 0; i < ammountReadingPoints; i++) {
             lastBits[i][lastBitsIndex] = booleanValues[i];
+            if (decoderState == READING_ROW_DATA) {
+              bit_grid[current_row_index + i][col_index-1] = booleanValues[i];
+            } else if (decoderState == READING_ROW_DATA_INVERTED) {
+              bit_grid[current_row_index + i][PLATE_COLS-col_index] = booleanValues[i];
+            }
           }
           lastBitsIndex++;
           if (lastBitsIndex == 8) { // every 8 bits...
@@ -155,9 +186,36 @@ public class Decoder {
   }
   
   void display () {
+    draw_grid();
     // render_grid();
     // noTint();
-    // image(pg, width-grid_width-MARGIN, height-grid_height-MARGIN);
+    pushMatrix();
+      imageMode(CORNER);
+      image(pg, width-MARGIN-pg.width, MARGIN);
+      imageMode(CENTER);
+    popMatrix();
+  }
+
+  void draw_grid () {
+    pg.beginDraw();
+    stroke(0);
+    for (int y = 0; y < grid_height; y++) {
+      for (int x = 0; x < grid_width; x++) {
+        int index = x + y * grid_width;
+        int val = bit_grid[y][x];
+        if (val != -1) {
+          if (val == 1) {
+            pg.fill(255, 10);
+          } else {
+            pg.fill(0, 10);
+          }
+        } else {
+          pg.fill(0, 0);
+        }
+        pg.rect(x * 2, y * 2, 2, 2);
+      }
+    }
+    pg.endDraw();
   }
 
   void render_grid () {
@@ -193,6 +251,7 @@ public class Decoder {
   void clearLastRows () {
     if (current_row_index == 0) {
       accumulatedBytes.clear();
+      resetStoredBitData();
     }
     startedTimer=false;
     col_index=0;
@@ -214,6 +273,7 @@ public class Decoder {
   }
 
   void endReading (boolean isInverted) {
+    println("[Decoder] endReading", lastIndex);
     println("currentReadTime", currentReadTime);
     currentReadTime=ROW_TIME;
     for (int r = 0; r < lastRowBytes.size(); r++) {
@@ -221,7 +281,6 @@ public class Decoder {
       if (isInverted) {
         Collections.reverse(dataRow);
       }
-      println("[Decoder] endReading", lastIndex, dataRow.size());
       for (int i = 0; i < dataRow.size(); i++) { 
         lastIndex++; 
         if (lastIndex >= total_length) {

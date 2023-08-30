@@ -30,7 +30,7 @@ public class Camera {
     } else {
       println("[Camera] Available cameras:");
       for (int i = 0; i < cameras.length; i++) {
-        println(cameras[i]);
+        println(i, cameras[i]);
       }
       // The camera can be initialized directly using an 
       // element from the array returned by list():
@@ -38,7 +38,7 @@ public class Camera {
         println("[Camera] No OBS Virtual Camera camera found, using default one instead");
         video = new Capture(this.parent, cameras[0], 30);
       } else {
-        video = new Capture(this.parent, 1080, 1920, cameras[cameraIndex]);
+        video = new Capture(this.parent, cameras[0]);
       }
       video.start();
     }

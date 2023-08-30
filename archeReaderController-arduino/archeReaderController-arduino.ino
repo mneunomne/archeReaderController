@@ -67,7 +67,6 @@ void loop() {
     } else {
       return;
     }
-    delay(500);
     // send end message to processing
     Serial.println("e");
   }

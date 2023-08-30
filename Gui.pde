@@ -309,6 +309,41 @@ public class Gui {
     }
   }
 
+  void hideButtons () {
+    cp5.getController("read_row").hide();
+    cp5.getController("read_row_inverse").hide();
+    cp5.getController("jump_row").hide();
+    cp5.getController("read_unit").hide();
+    cp5.getController("read_plate").hide();
+    cp5.getController("stop_machine").hide();
+    cp5.getController("take_pictures").hide();
+    cp5.getController("take_one_picture").hide();
+    cp5.getController("save_frame").hide();
+    cp5.getController("merge_data").hide();
+    
+  }
+
+  void showDebugElements () {
+    showButtons();
+  }
+
+  void hideDebugElements () {
+    hideButtons();
+  }
+  
+  void showButtons () {
+    cp5.getController("read_row").show();
+    cp5.getController("read_row_inverse").show();
+    cp5.getController("jump_row").show();
+    cp5.getController("read_unit").show();
+    cp5.getController("read_plate").show();
+    cp5.getController("stop_machine").show();
+    cp5.getController("take_pictures").show();
+    cp5.getController("take_one_picture").show();
+    cp5.getController("save_frame").show();
+    cp5.getController("merge_data").show();
+  }
+
   void updateCharts (int [] values) {
     for (int i = 0; i < values.length; i++) {
       dataCharts[i].push("incoming_"+i, values[i]);
@@ -323,7 +358,7 @@ public class Gui {
       } else {
         values[i] = 0;
       }
-    }    
+    }
     accumulatedChart.setData("accumulatedData", samples);
   }
   
