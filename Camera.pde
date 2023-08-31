@@ -81,43 +81,21 @@ public class Camera {
     tint(255, 0, 0);
     imageMode(CENTER);
     pushMatrix(); // remember current drawing matrix)
-    translate(width/2, height/2);
-    image(imageCapture, 0, 0, video_w, video_h);
+      translate(width/2, height/2);
+      image(imageCapture, 0, 0, video_w, video_h);
     popMatrix();
     //filter(THRESHOLD, float(threshold)/255);
     // capture
     // unitPixelSize
     pushStyle();
       rectMode(CENTER);
-      // stroke(0, 0, 255, 0);
-      noFill();
-      // ?
-      
+      noFill();      
       for(int i = 0; i < capturedValues.length; i++) {
         int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
         stroke(255-capturedValues[i]);
         rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize, unitPixelSize);
       }
     popStyle();
-    
-  }
-
-  int getCenterValue () {
-
-    // crop image to load pixels only from the center
-    PImage img = video.get(capturePosX, capturePosY, captureSize, captureSize);
-    
-    float sum = 0;
-    img.loadPixels();
-    for(int y = capturePosY; y < capturePosY+captureSize; y++) {
-      for(int x = capturePosX; x < capturePosX+captureSize; x++) {
-        int i = x+y*w;
-        float b = red(img.pixels[i]);
-        sum+=b;
-      }  
-    }
-    int average = floor(sum/(captureSize*captureSize));
-    return average;
   }
 
   // only pairs

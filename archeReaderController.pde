@@ -31,7 +31,7 @@ int LOCAL_PORT = 8003;
 String PARALLEL_ADDRESS = "127.0.0.1";
 int PARALLEL_PORT = 12001;
 
-int UNIT_STEPS = 88;
+int UNIT_STEPS = 86;
 int ROW_STEPS = 16725;
 int COLS_STEPS = 23082; // origonal was 23083
 
@@ -116,7 +116,6 @@ int current_row_index = 0;
 
 int currentReadTime = 0;
 
-
 float INTERVAL = 3.2083333;
 
 int ROW_TIME = 16895;//16948;
@@ -133,7 +132,7 @@ float noise_scale_default = 0.5;
 float noise_step_default = 0.005;
 float noiseScale = noise_scale_default;
 float noiseSteps = noise_step_default;
-int unit_size_default = 14;
+int unit_size_default = 35;
 int unitPixelSize = unit_size_default;
 
 float real_original_balance_default = 0.85;
@@ -159,11 +158,12 @@ boolean noMachine = false;
 
 void setup() {
   
-  frameRate(30);
 
   size(1080, 1920, P2D);
 
-  smooth();
+  frameRate(30);
+
+  // smooth();
   
   loadConfig();
 
@@ -199,8 +199,6 @@ void loadConfig() {
 void draw() {
   background(0);
   
-  // constantly listening to events from arduino
-
   // display camera in interface
   cam.update();
   cam.display();
@@ -215,8 +213,6 @@ void draw() {
 
   machineController.listenToSerialEvents();
   machineController.update();
-
-  // oscController.update();
 
   if (savingFrame) {
     saveFrame("frame-######.jpg");
@@ -328,8 +324,10 @@ void save_frame (boolean value) {
 void toggleDebug (boolean value) {
   debug = value;
   if (debug) {
+    cursor(CROSS);
     gui.showDebugElements();
   } else {
+    noCursor();
     gui.hideDebugElements();
   }
 }

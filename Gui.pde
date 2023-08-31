@@ -312,7 +312,6 @@ public class Gui {
       rect(rx, ry, rectSize, rectSize);
       // text with P5
       text(lastBytes[i], rx+rectSize*2, ry+rectSize-2);
-      
     }
   }
 

@@ -39,7 +39,7 @@ public class Decoder {
   int [][] bit_grid = new int[grid_height][grid_width]; 
 
   Decoder () {
-    pg = createGraphics(grid_width*2, grid_height*2, P2D);
+    pg = createGraphics(grid_width*2, grid_height*2);
     //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
     resetStoredBitData();
     pg.beginDraw();
@@ -66,41 +66,13 @@ public class Decoder {
     }  
   }
 
-  /*
-  void storeDataPoint () {
-    char bit = currentLiveValue > threshold ? '0' : '1';
-    bString = bString + bit;
-    // every 8 read signals, send to max
-    if (bString.length() >= 8) {
-      oscController.sendOscAccumulatedData(getSignalArray(), current_row_index);
-    } else {
-      // bit string not long enough yet.
-      return; 
-    }
-  }
-
-  int [] getSignalArray () {
-    // split into 8 chars
-    String[] binaryStrings = bString.split("(?<=\\G........)", -1);
-    //print("[Decoder] array ");
-    //printArray(binaryStrings);
-    int [] values = new int[binaryStrings.length];
-    for (int i = 0; i < binaryStrings.length; i++) {
-      if (binaryStrings[i].length() == 8) {
-        values[i] = Integer.parseInt(binaryStrings[i], 2);
-      }
-    }
-    return values;
-  }
-  */
-
   int col_index=0;
   int byte_index=0;
   void update () { 
     // start timer
     if (!startedTimer) {
-      print("start timer!");
       startReadTime = millis();
+      println("start timer!", startReadTime);
       startedTimer=true;
       lastUnitReadTime = millis() - timePerUnit;
     }
@@ -136,6 +108,8 @@ public class Decoder {
         // leftOverMillis= 0;
         // println("realTimePerUnit", realTimePerUnit, "timePerUnit", timePerUnit, millis() - lastUnitReadTime);
         if (millis() - lastUnitReadTime >= realTimePerUnit) {
+          // draw the bit grid only when we get new values
+          // draw_grid();
           leftOverMillis = (millis() - lastUnitReadTime) - realTimePerUnit;
           if (lastUnitReadTime == 0) {
             leftOverMillis = 0;
@@ -145,12 +119,8 @@ public class Decoder {
           lastUnitReadTime=millis() - leftOverMillis;
           if (col_index > PLATE_COLS) {
             // no more data reading
-            return; 
-            // end reading
-            // endReading(decoderState == READING_ROW_DATA_INVERTED);
-            // break;
+            return;
           }
-          print("read col", col_index);
           // send individual bits data to Max as array, not the arrayList 
           oscController.sendLiveDataArray(camValues, proportionalTime);
           oscController.sendLiveDataBits(booleanValues, proportionalTime);
@@ -163,9 +133,15 @@ public class Decoder {
               bit_grid[current_row_index + i][PLATE_COLS-col_index] = booleanValues[i];
             }
           }
+
+          if (decoderState == READING_ROW_DATA) {
+            draw_last_bits(lastBits, current_row_index, col_index-1);
+          } else if (decoderState == READING_ROW_DATA_INVERTED) {
+            draw_last_bits(lastBits, current_row_index, PLATE_COLS-col_index);
+          }
+
           lastBitsIndex++;
           if (lastBitsIndex == 8) { // every 8 bits...
-            println("byte_index", byte_index);
             byte_index++;
             lastBitsIndex=0;
             processLastBits();
@@ -193,9 +169,6 @@ public class Decoder {
   }
   
   void display () {
-    draw_grid();
-    // render_grid();
-    // noTint();
     pushStyle();
       noTint();
       imageMode(CORNER);
@@ -204,47 +177,19 @@ public class Decoder {
     popStyle();
   }
 
-  void draw_grid () {
-    
+  void draw_last_bits (int [][] lastBits, int row_index, int col_index) {
     color bit_1 = color(255);
     color bit_0 = color(0, 0);
-    
     pg.beginDraw();
     pg.stroke(0,150);
-    pg.background(0,0);
-    for (int y = 0; y < grid_height; y++) {
-      for (int x = 0; x < grid_width; x++) {
-        int index = x + y * grid_width;
-        int val = bit_grid[y][x];
-        if (val != -1) {
-          if (val == 1) {
-            pg.fill(bit_1);
-          } else {
-            pg.noFill();
-          }
+    for (int i = 0; i < ammountReadingPoints; i++) {
+        int val = lastBits[i][lastBitsIndex];
+        if (val == 1) {
+          pg.fill(bit_1);
         } else {
-          pg.fill(0, 0);
+          pg.noFill();
         }
-        pg.rect(x * 2, y * 2, 2, 2);
-      }
-    }
-    pg.endDraw();
-  }
-
-  void render_grid () {
-    pg.beginDraw();
-    pg.background(0, 0);
-    int x = 0;
-    int y = 0;
-    for (int i = 0; i < total_length; i++) {  
-      pg.stroke(bits[i]*255, 55+bits[i]*200);
-      pg.point(x, y);
-      if (x > PLATE_COLS) {
-        x=0;
-        y++;
-      } else {
-        x++;
-      }
+        pg.rect((col_index)*2, (row_index+i)*2, 2, 2);
     }
     pg.endDraw();
   }
@@ -265,6 +210,9 @@ public class Decoder {
     if (current_row_index == 0) {
       accumulatedBytes.clear();
       resetStoredBitData();
+      pg.beginDraw();
+      pg.background(0, 0);
+      pg.endDraw();
     }
     startedTimer=false;
     col_index=0;
