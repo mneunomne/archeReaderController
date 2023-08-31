@@ -16,23 +16,22 @@
 
 char c;
 
-void setup() {
-  Serial.begin(9600);
-  
+void setup() {  
   pinMode(STEP_PIN_X,OUTPUT);
   pinMode(DIR_PIN_X,OUTPUT);
   pinMode(STEP_PIN_Y,OUTPUT);
   pinMode(DIR_PIN_Y,OUTPUT);
   pinMode(ENA_PIN,OUTPUT);
- 
+  Serial.begin(9600);
   start();
   
 }
 void loop() {
+  //digitalWrite(ENA_PIN,LOW);
   String chars = "";
   if (Serial.available()) {
     String s = Serial.readString();
-    // Serial.println("string: " + s);
+    Serial.println("string: " + s);
     // Serial.println("first char: " + s[0]);
     int steps=0;
     int dir=0;
@@ -74,8 +73,8 @@ void loop() {
 
 void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
-  // moveX(100, 1);
+  //digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
+  moveX(100, 1);
 }
 
 void moveX (int steps, int dir) {

@@ -347,5 +347,8 @@ void keyPressed() {
     case 'S': 
     case 'D': wasd_command(key); break;
     case '.': toggleDebug(!debug); break;
+    case 'r':
+    case 'R': read_plate(); break;
+    
   }
 }

@@ -294,7 +294,7 @@ public class Gui {
       text("proportional time: " + float(currentReadTime)/ROW_TIME, fx,fy);
       fy+=margin+5;
     }
-    
+    // bits
     int rectSize = chart_w/16;
     noFill();
     int ry = y + margin;

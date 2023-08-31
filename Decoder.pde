@@ -39,7 +39,7 @@ public class Decoder {
   int [][] bit_grid = new int[grid_height][grid_width]; 
 
   Decoder () {
-    pg = createGraphics(grid_width*2, grid_height*2);
+    pg = createGraphics(grid_width*2, grid_height*2, P2D);
     //for (int i = 0; i < total_length; i++) bits[i] = random(100) > 50 ? 1 : 0;
     resetStoredBitData();
     pg.beginDraw();
@@ -205,17 +205,22 @@ public class Decoder {
   }
 
   void draw_grid () {
+    
+    color bit_1 = color(255);
+    color bit_0 = color(0, 0);
+    
     pg.beginDraw();
-    pg.noStroke();
+    pg.stroke(0,150);
+    pg.background(0,0);
     for (int y = 0; y < grid_height; y++) {
       for (int x = 0; x < grid_width; x++) {
         int index = x + y * grid_width;
         int val = bit_grid[y][x];
         if (val != -1) {
           if (val == 1) {
-            pg.fill(0, 10);
+            pg.fill(bit_1);
           } else {
-            pg.fill(255, 10);
+            pg.noFill();
           }
         } else {
           pg.fill(0, 0);

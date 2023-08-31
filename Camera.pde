@@ -13,6 +13,9 @@ public class Camera {
   int [] capturedValues;
 
   PGraphics imageCapture;
+  
+  int cameraW = 1600;
+  int cameraH = 1200;
 
   PImage cropped;
 
@@ -40,7 +43,7 @@ public class Camera {
         println("[Camera] No OBS Virtual Camera camera found, using default one instead");
         video = new Capture(this.parent, cameras[0], 30);
       } else {
-        video = new Capture(this.parent, 1080, 1920, cameras[0], 30);
+        video = new Capture(this.parent, 1080, 1920, cameras[cameraIndex], 30);
       }
       video.start();
     }
