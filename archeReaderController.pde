@@ -46,6 +46,8 @@ int PLATE_ROWS = 265;
 static int MARGIN = 10;
 
 boolean savingFrame = false;
+boolean showCentralSquares = true;
+boolean showCentralCross = false;
 
 // Macro States
 static final int MACRO_IDLE                 = 0;
@@ -128,7 +130,7 @@ int reading_points_default = 7;
 int ammountReadingPoints = 7; 
 int threshold_default   = 168;
 int lastDir = 0; 
-float noise_scale_default = 0.5;
+float noise_scale_default = 0.2;
 float noise_step_default = 0.005;
 float noiseScale = noise_scale_default;
 float noiseSteps = noise_step_default;
@@ -337,6 +339,14 @@ void toggleDebug (boolean value) {
 void send_accumulated_data() {
   println("send_accumulated_data");
   decoder.sendAccumulatedData();
+}
+
+void show_central_squares (boolean value) {
+  showCentralSquares = value;
+}
+
+void show_central_cross (boolean value) {
+  showCentralCross = value;  
 }
 
 // wasd movement keys

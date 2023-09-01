@@ -162,6 +162,20 @@ public class Gui {
       .setValue(true)
       ;
     fy+= button_h+margin+10;
+    
+    cp5.addToggle("show_central_squares")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      .setValue(true)
+      ;
+    fy+= button_h+margin+10;
+
+    cp5.addToggle("show_central_cross")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      .setValue(false)
+      ;
+    fy+= button_h+margin+10;
 
     cp5.addToggle("save_frame")
       .setPosition(fx, fy)
@@ -333,6 +347,9 @@ public class Gui {
     cp5.getController("save_frame").hide();
     cp5.getController("merge_data").hide();
     cp5.getController("send_accumulated_data").hide();
+    cp5.getController("show_central_squares").hide();
+    cp5.getController("show_central_cross").hide();
+
     
   }
 
@@ -356,6 +373,8 @@ public class Gui {
     cp5.getController("save_frame").show();
     cp5.getController("merge_data").show();
     cp5.getController("send_accumulated_data").show();
+    cp5.getController("show_central_squares").show();
+    cp5.getController("show_central_cross").show();
 
   }
 

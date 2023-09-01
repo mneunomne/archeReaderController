@@ -87,15 +87,27 @@ public class Camera {
     //filter(THRESHOLD, float(threshold)/255);
     // capture
     // unitPixelSize
-    pushStyle();
-      rectMode(CENTER);
-      noFill();      
+    if (showCentralSquares) {
+      pushStyle();
+        rectMode(CENTER);
+        noFill();      
+        for(int i = 0; i < capturedValues.length; i++) {
+          int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
+          stroke(255-capturedValues[i]);
+          rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize, unitPixelSize);
+        }
+      popStyle();
+    }
+    if (showCentralCross) {
+      pushStyle();
       for(int i = 0; i < capturedValues.length; i++) {
-        int fy = capturePosY + (unitPixelSize * (i-ceil(capturedValues.length/2)));
+        int y = height/2 + (unitPixelSize * (i-ceil(capturedValues.length/2)));
+        int x = width/2;
         stroke(255-capturedValues[i]);
-        rect((float(capturePosX)/w)*width, (float(fy)/h)*height, unitPixelSize, unitPixelSize);
+        line(x-unitPixelSize/2, y, x+unitPixelSize/2, y);
+        line(x, y-unitPixelSize/2, x, y+unitPixelSize/2);
       }
-    popStyle();
+    }
   }
 
   // only pairs
