@@ -75,6 +75,9 @@ void start () {
   digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   //digitalWrite(ENA_PIN,LOW); // enable motor HIGH -> DISABLE
   moveX(100, 1);
+  moveX(100, -1);
+  moveY(100, 1);
+  moveY(100, -1);
 }
 
 void moveX (int steps, int dir) {

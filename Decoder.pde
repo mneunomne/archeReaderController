@@ -252,6 +252,11 @@ public class Decoder {
       }
       //render_grid();
     }
+    sendAccumulatedData();
+    decoderState = DECODER_IDLE; 
+  }
+
+  void sendAccumulatedData () {
     // get data 
     int [] realData = getAccumulatedData();
     int [] originalData = getOriginalData();
@@ -276,8 +281,7 @@ public class Decoder {
     }
     oscController.sendOscAccumulatedData(dataPayload, current_row_index/ammountReadingPoints);
     
-    decoderState = DECODER_IDLE; 
-  } 
+  }
 
   int [] getAccumulatedData () {
     int [] accumulatedData = new int[accumulatedBytes.size()];

@@ -142,6 +142,12 @@ public class Gui {
       .setSize(button_w, button_h)
       ;
     fy+= button_h+margin+10;
+
+    cp5.addBang("send_accumulated_data")
+      .setPosition(fx, fy)
+      .setSize(button_w, button_h)
+      ;
+    fy+= button_h+margin+10;
 /*
     cp5.addToggle("original_data")
       .setPosition(fx, fy)
@@ -326,6 +332,7 @@ public class Gui {
     cp5.getController("take_one_picture").hide();
     cp5.getController("save_frame").hide();
     cp5.getController("merge_data").hide();
+    cp5.getController("send_accumulated_data").hide();
     
   }
 
@@ -348,6 +355,8 @@ public class Gui {
     cp5.getController("take_one_picture").show();
     cp5.getController("save_frame").show();
     cp5.getController("merge_data").show();
+    cp5.getController("send_accumulated_data").show();
+
   }
 
   void updateCharts (int [] values) {

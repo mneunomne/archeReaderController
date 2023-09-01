@@ -165,10 +165,12 @@ void setup() {
 
   // smooth();
   
-  loadConfig();
+  loadConfig(); //<>//
 
   cam = new Camera(this);
+  delay(100);
   cam.init();
+  delay(1000);
 
   machineController = new MachineController(this, noMachine);
 
@@ -330,6 +332,11 @@ void toggleDebug (boolean value) {
     noCursor();
     gui.hideDebugElements();
   }
+}
+
+void send_accumulated_data() {
+  println("send_accumulated_data");
+  decoder.sendAccumulatedData();
 }
 
 // wasd movement keys
